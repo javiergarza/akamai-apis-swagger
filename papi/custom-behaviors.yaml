@@ -1,0 +1,405 @@
+---
+  openapi: "3.0.0"
+  servers:
+    - url: https://akzz-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX.luna.akamaiapis.net/papi/v1
+  info:
+    title: "Custom behaviors"
+    version: v1
+  paths:
+    /custom-behaviors:
+      get:
+        summary: List custom behaviors
+        description: |
+          Lists the set of custom XML metadata behaviors configured for you by Akamai representatives. Referencing the relevant `behaviorId` from a [`customBehavior`](http://learn.akamai.com/en-us/api/core_features/property_manager/vlatest.html#custombehavior) within the rule tree injects the custom XML within the rest of the rule tree's metadata XML. See [Custom behaviors and overrides](doc:custom-behaviors-and-overrides) for guidance on custom overrides.
+        operationId: "GET_custom-behaviors"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  accountId: act_1-1TJZFB
+                  customBehaviors:
+                    items:
+                      - behaviorId: cbe_12345
+                        name: "DLR"
+                        status: "ACTIVE"
+                        displayName: "Custom Download Receipt"
+                        description: |
+                          Setting custom download receipt. Uses PMUSER_LOG variable.
+                        updatedDate: "2017-04-24T12:34:56Z"
+                        updatedByUser: jsikkela
+                schema:
+                  $ref: "#/components/schemas/custom-behavior-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+      post:
+        summary: Create a new custom behavior
+        deprecated: true
+        description: |
+          Operation is Akamai-internal.
+        operationId: "POST_custom-behaviors"
+        responses:
+          201:
+            description: ""
+            headers:
+              Location:
+                schema:
+                  type: string
+            content:
+              application/json:
+                schema:
+                  example:
+                    customBehaviorLink: "/papi/v0/custom-behaviors/cbe_1234"
+                    behaviorId: cbe_1234
+        requestBody:
+          required: true
+          content:
+            application/json:
+              example:
+                description: |
+                  MDC Behavior
+                displayName: "Multiple Domain Configuration"
+                name: mdc
+                sharingLevel: "ACCOUNT"
+                xml: "<comment:info>This is where the Metadata goes</comment:info>"
+                approvedByUser: jlandis
+              schema:
+                $ref: "#/components/schemas/custom-behavior-create-request"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+    /custom-behaviors/{behaviorId}:
+      get:
+        summary: Get a custom behavior
+        description: |
+          Get information for a single custom behavior. Use this operation if you want to examine the custom behavior's XML metadata source.
+        operationId: "GET_custom-behaviors-behaviorId"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  customBehaviors:
+                    items:
+                      - behaviorId: cbe_12345
+                        name: "DLR"
+                        displayName: "Custom Download Receipt"
+                        description: |
+                          Setting custom download receipt. Uses PMUSER_LOG variable.
+                        status: "ACTIVE"
+                        xml: "<reporting:edge-logging.send-receipt name=\"DLR\"><hostname>logs.customer.com</hostname><url>/dlr</url><allow-cacheh>off</allow-cacheh><status>on</status><port>443</port><format>stuff=%(PMUSER_LOG)&amp;time=%t&amp;url=%u</format><method>POST</method></reporting:edge-logging.send-receipt>"
+                        updatedDate: "2017-04-24T12:34:56Z"
+                        updatedByUser: jsikkela
+                schema:
+                  $ref: "#/components/schemas/custom-behavior-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+      delete:
+        summary: Delete a custom behavior
+        deprecated: true
+        description: |
+          Update status to DELETED. Operation
+          is Akamai-internal.
+        operationId: "DELETE_custom-behaviors-behaviorId"
+        responses:
+          204:
+            description: ""
+      put:
+        summary: Lock a custom behavior
+        deprecated: true
+        description: |
+          updating status to 'LOCKED'. Operation
+          is Akamai-internal.
+        operationId: "PUT_custom-behaviors-behaviorId"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  customBehaviors:
+                    items:
+                      - behaviorId: cbe_12345
+                        name: "DLR"
+                        displayName: "Custom Download Receipt"
+                        description: |
+                          Setting custom download receipt. Uses PMUSER_LOG variable.
+                        status: "ACTIVE"
+                        xml: "<reporting:edge-logging.send-receipt name=\"DLR\"><hostname>logs.customer.com</hostname><url>/dlr</url><allow-cacheh>off</allow-cacheh><status>on</status><port>443</port><format>stuff=%(PMUSER_LOG)&amp;time=%t&amp;url=%u</format><method>POST</method></reporting:edge-logging.send-receipt>"
+                        updatedDate: "2017-04-24T12:34:56Z"
+                        updatedByUser: jsikkela
+                schema:
+                  $ref: "#/components/schemas/custom-behavior-get-response"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: string
+        parameters:
+          - name: lock
+            in: query
+            description: |
+              Lock custom behavior when 'true'.
+            schema:
+              default: true
+              type: string
+              enum:
+                - "true"
+                - "false"
+      parameters:
+        - name: behaviorId
+          in: path
+          required: true
+          description: |
+            Unique identifier for the custom behavior.
+          schema:
+            type: string
+  components:
+    schemas:
+      custom-behavior-create-request:
+        type: object
+        required:
+          - "description"
+          - "name"
+          - "xml"
+          - "approvedByUser"
+        properties:
+          description:
+            type: string
+          displayName:
+            type: string
+          name:
+            type: string
+          sharingLevel:
+            type: string
+            enum:
+              - "ACCOUNT"
+              - "PARTNER"
+          xml:
+            type: string
+          approvedByUser:
+            type: string
+      custom-behavior-get-response:
+        description: |
+          A common outer wrapping object structure that provides additional contextual details for a set of requested data. The data itself is available under various inner members' `items` array, even individual items. See [ID prefixes](doc:id-prefixes) for more information.
+        type: object
+        properties:
+          customBehaviors:
+            description: |
+              The set of requested custom behaviors, available within an `items` array.
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  description: |
+                    Represents a customized XML metadata Akamai sets up on your behalf, and which you can invoke in a [`customBehavior`](http://learn.akamai.com/en-us/api/core_features/property_manager/vlatest.html#custombehavior) within a rule tree. Relevant response objects appear within the outer [Envelope](#envelope) object's `customBehaviors.items` array. See [Custom behaviors and overrides](doc:custom-behaviors-and-overrides) for guidance.
+                  type: object
+                  required:
+                    - "behaviorId"
+                    - "description"
+                    - "displayName"
+                    - "name"
+                    - "status"
+                    - "updatedByUser"
+                    - "updatedDate"
+                  properties:
+                    behaviorId:
+                      description: |
+                        The unique identifier for the custom XML metadata that you reference from a [`customBehavior`](http://learn.akamai.com/en-us/api/core_features/property_manager/vlatest.html#custombehavior) to insert it in a rule tree. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `cbe_` prefix.
+                      type: string
+                    description:
+                      description: |
+                        Descriptive text for the custom metadata.
+                      type: string
+                    displayName:
+                      description: |
+                        A display label for the custom metadata.
+                      type: string
+                    name:
+                      description: |
+                        A name for the custom metadata.
+                      type: string
+                    status:
+                      description: |
+                        Current deployment status for the custom metadata. By the time it's available to customers, the only possible value is `ACTIVE`.
+                      type: string
+                      enum:
+                        - "ACTIVE"
+                    updatedByUser:
+                      description: |
+                        The name of the Akamai representative who last updated the custom metadata.
+                      type: string
+                    updatedDate:
+                      description: |
+                        The date stamp of the custom metadata's latest update.
+                      type: string
+                    xml:
+                      description: |
+                        The customized XML metadata to inject within the rule.
+                      type: string
+    responses: {}
+    parameters:
+      trait_contractParamRequired_contractId:
+        name: contractId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the contract.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptional_contractId:
+        name: contractId
+        in: query
+        description: |
+          Unique identifier for the contract.
+          The parameter is optional if the property has been
+          provisioned under only one contract.
+          Otherwise you need to specify it along with the `groupId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptionalBulk_contractId:
+        name: contractId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified contract. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_groupParamRequired_groupId:
+        name: groupId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the group.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptional_groupId:
+        name: groupId
+        in: query
+        description: |
+          Unique identifier for the group.
+          The parameter is optional if the property has been
+          provisioned under only one group.
+          Otherwise you need to specify it along with the `contractId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptionalBulk_groupId:
+        name: groupId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified group. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_optionsParam_options:
+        name: options
+        in: query
+        description: |
+          Comma-separated list of options to enable; `mapDetails`
+          enables extra mapping-related information.
+        schema:
+          type: string
+      trait_validateHostnamesParam_validateHostnames:
+        name: validateHostnames
+        in: query
+        description: |
+          When `false` (the default), skips validation tests that
+          would identify potential hostname-related problems within
+          the response object's `errors` and `warnings` arrays. See
+          [Property hostname errors](doc:property-hostname-errors)
+          for details on relevant error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateRulesParam_validateRules:
+        name: validateRules
+        in: query
+        description: |
+          Set to `true` by default. When `false`, skips validation
+          tests that would identify potential problems within the
+          response object's `errors` and `warnings` arrays. See the
+          [JSON problems](doc:json-problem-responses)
+          section for details on this error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateModeParam_validateMode:
+        name: validateMode
+        in: query
+        description: |
+          With `validateRules` enabled, setting this to `fast`
+          performs a quick validation check based on the provided
+          JSON. This is faster than the default `full` validation,
+          which performs more extensive checks on the converted XML
+          metadata configuration.
+        schema:
+          default: full
+          type: string
+          enum:
+            - "full"
+            - "fast"
+      trait_dryRunParam_dryRun:
+        name: dryRun
+        in: query
+        description: |
+          With `validateRules` also enabled, allows for a _dry run_ in
+          order to gather any possible errors without saving the rule
+          tree.
+        schema:
+          default: false
+          type: boolean
+      trait_paginated_offset:
+        name: offset
+        in: query
+        description: |
+          For paginated responses, specifies the page of results to
+          include, starting from `0`.
+        schema:
+          minimum: 0
+          type: integer
+      trait_paginated_limit:
+        name: limit
+        in: query
+        description: |
+          For paginated responses, specifies the number of results to
+          include on each page.
+        schema:
+          minimum: 1
+          type: integer
+      trait_usePrefixesHeader_PAPI-Use-Prefixes:
+        name: "PAPI-Use-Prefixes"
+        description: |
+          Sets whether to display three-letter prefixes in various ID values in response data. This may override the client's default `usePrefixes` setting. See [ID Prefixes](doc:id-prefixes).
+        in: header
+        required: true
+        schema:
+          type: string
+    examples: {}
+    requestBodies: {}
+    headers: {}
+    securitySchemes: {}
+    links: {}
+    callbacks: {}

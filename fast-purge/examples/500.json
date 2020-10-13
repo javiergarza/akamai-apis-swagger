@@ -1,0 +1,7 @@
+{
+  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+  "detail": "If problem persists over multiple requests, please contact Customer Care",
+  "httpStatus": 500,
+  "supportId": "17PY1491925494628797-286725312",
+  "title": "internal error"
+}

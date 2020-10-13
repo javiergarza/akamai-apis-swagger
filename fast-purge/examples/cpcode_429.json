@@ -1,0 +1,9 @@
+{
+"supportId": "17PY1552428137949981-186598592",
+"title": "CPCODE Rate Limit exceeded",
+"httpStatus": 429,
+"describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+"rateLimit": 300,
+"rateLimitCurrentRequestSize": 5,
+"rateLimitRemaining": 1
+}

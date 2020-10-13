@@ -1,0 +1,122 @@
+---
+  openapi: "3.0.0"
+  servers:
+    - url: https://akzz-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX.luna.akamaiapis.net/papi/v1
+  info:
+    title: "Build"
+    version: v1
+  paths:
+    /build:
+      get:
+        summary: Get build details
+        description: |
+          Gets information about the current API release. Note that available information about version numbers and build dates are unrelated to the overall API version or to various rule format versions. See [API versioning](doc:api-versioning) for details.
+        operationId: "GET_build"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  currentCatalogVersion: "14.2.6"
+                  coreVersion: "14.2"
+                  catalogGitInfo:
+                    buildDate: "2014-05-26T23:56:21Z"
+                    commitDate: "2014-05-26T23:55:53Z"
+                    branch: "candidate-14.2"
+                    commitId: "59a193acdf26ba6de1522486411a749f19efde8c"
+                  coreGitInfo:
+                    buildDate: "2014-04-25T17:02:43Z"
+                    commitDate: "2014-04-25T17:01:11Z"
+                    branch: "14.2"
+                    commitId: "22163903cb91a62492dfce745aaa95de991b0653"
+                schema:
+                  $ref: "#/components/schemas/build-get-response"
+  components:
+    schemas:
+      build-get-response:
+        description: |
+          Provides details on the software build. See the [Build
+          interface](#buildgroup) for details.
+        type: object
+        required:
+          - "catalogGitInfo"
+          - "coreGitInfo"
+          - "coreVersion"
+          - "currentCatalogVersion"
+        properties:
+          catalogGitInfo:
+            description: |
+              Specifies internal tracking data.
+            type: object
+            required:
+              - "branch"
+              - "buildDate"
+              - "commitDate"
+              - "commitId"
+            properties:
+              branch:
+                description: |
+                  The name of the build's branch.
+                type: string
+              buildDate:
+                description: |
+                  When the code was built.
+                type: string
+              commitDate:
+                description: |
+                  When the final commit occurred.
+                type: string
+              commitId:
+                description: |
+                  An opaque data signature for the final commit.
+                type: string
+          coreGitInfo:
+            description: |
+              Specifies internal tracking data.
+            type: object
+            required:
+              - "branch"
+              - "buildDate"
+              - "commitDate"
+              - "commitId"
+            properties:
+              branch:
+                description: |
+                  The name of the build's branch.
+                type: string
+              buildDate:
+                description: |
+                  When the code was built.
+                type: string
+              commitDate:
+                description: |
+                  When the final commit occurred.
+                type: string
+              commitId:
+                description: |
+                  An opaque data signature for the final commit.
+                type: string
+          coreVersion:
+            description: |
+              The Property Manager version.
+            type: string
+          currentCatalogVersion:
+            description: |
+              The version of the Property Manager catalog that
+              specifies rule
+              [behaviors](http://learn.akamai.com/en-us/api/core_features/property_manager/vlatest.html#behaviors)
+              and
+              [criteria](http://learn.akamai.com/en-us/api/core_features/property_manager/vlatest.html#criteria). Note
+              that this _catalog_ isn't the same as the rule format
+              version available in the [Rule format
+              versions](#ruleformatsgroup) interface.
+            type: string
+    responses: {}
+    parameters: {}
+    examples: {}
+    requestBodies: {}
+    headers: {}
+    securitySchemes: {}
+    links: {}
+    callbacks: {}

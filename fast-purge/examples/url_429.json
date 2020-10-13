@@ -1,0 +1,9 @@
+{
+  "supportId": "17PY1552425341153293-211776704",
+  "title": "URL Rate Limit exceeded",
+  "httpStatus": 429,
+  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+  "rateLimit": 10000,
+  "rateLimitCurrentRequestSize": 110,
+  "rateLimitRemaining": 94
+}

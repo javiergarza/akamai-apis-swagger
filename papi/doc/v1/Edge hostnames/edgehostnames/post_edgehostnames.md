@@ -1,0 +1,8 @@
+---
+title: "Create a new edge hostname"
+slug: "post_edgehostnames"
+excerpt: "This operation creates a new edge hostname. As detailed in the sections below, you can use three approaches to secure new edge hostnames: [Standard TLS](doc:standard-tls-edge-hostname), [Enhanced TLS](doc:enhanced-tls-edge-hostname), or a [Shared Certificate](doc:shared-certificate-edge-hostname). You can [assign a use case](doc:assign-a-use-case-to-an-edge-hostname) mapping profile to optimize the hostname to serve specific types of traffic. For more information, see [Create edge hostnames using PAPI](http://learn.akamai.com/en-us/api/learn_akamai/getting_started_with_akamai_developers/core_features/create_edgehostnames.html). Once the hostname is active, you can [Update a property's hostnames](https://papi-akamai.readme.io/reference/propertiespropertyidversionspropertyversionhostnames#put_properties-propertyid-versions-propertyversion-hostnames) to assign it to a property. After you [activate a property](https://papi-akamai.readme.io/reference/propertiespropertyidactivations#post_properties-propertyid-activations), modifying your DNS to map the origin hostname to the edge hostname ultimately enables traffic on the property. For details, see [Enable traffic for a new edge hostname](doc:enable-traffic-for-a-new-edge-hostname). Use the [Edge Hostname API](https://developer.akamai.com/api/core_features/edge_hostnames/v1.html#getcertificatefortheedgehostname) (HAPI) to modify edge hostnames, or delete any that aren't currently assigned to an active property configuration."
+hidden: false
+createdAt: "2020-06-05T12:55:45.977Z"
+updatedAt: "2020-06-10T15:49:12.831Z"
+---

@@ -1,0 +1,181 @@
+openapi: 3.0.0
+info:
+  title: Deletions
+  version: '1'
+servers: []
+paths:
+  /delete/cpcode/{network}:
+    parameters:
+    - $ref: parameters/network-path.yaml
+    post:
+      operationId: POST_delete-cpcode-network
+      description: 'Delete by CP code: Deletes content on the selected CP code for
+
+        the selected `network`.  In most cases, you should
+
+        [invalidate](#postinvalidatecpcode) rather than
+
+        delete content.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            example:
+              $ref: examples/cpcode_request.json
+            schema:
+              $ref: schemas/CpCodeRequest.yaml
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              example:
+                $ref: examples/201.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        403:
+          content:
+            application/json:
+              example:
+                $ref: examples/403.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        429:
+          content:
+            application/json:
+              example:
+                $ref: examples/cpcode_429.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        500:
+          content:
+            application/json:
+              example:
+                $ref: examples/500.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+  /delete/tag/{network}:
+    parameters:
+    - $ref: parameters/network-path.yaml
+    post:
+      operationId: POST_delete-tag-network
+      description: 'Delete by cache tag: Deletes content on the selected set of
+
+        cache tags for the selected `network`.  In most cases, you
+
+        should [invalidate](#postinvalidatebycachetag) rather
+
+        than delete content.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            example:
+              $ref: examples/tag_request.json
+            schema:
+              $ref: schemas/TagRequest.yaml
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              example:
+                $ref: examples/201.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        403:
+          content:
+            application/json:
+              example:
+                $ref: examples/403.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        429:
+          content:
+            application/json:
+              example:
+                $ref: examples/tag_429.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        500:
+          content:
+            application/json:
+              example:
+                $ref: examples/500.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+  /delete/url/{network}:
+    parameters:
+    - $ref: parameters/network-path.yaml
+    post:
+      operationId: POST_delete-url-network
+      description: "Delete by URL or ARL: Deletes content on the selected URL or ARL \nfor the selected `network`. In most cases, you should\n[invalidate](#postinvalidateurl) rather than delete content. URLs \nand ARLs can be submitted in the same request. Note that it takes \nlonger to purge ARLs when using the [Control Center](https://control.akamai.com/apps/fast-purge/#/ccu-main) \ninterface. Use this API to purge them within five seconds.\n"
+      requestBody:
+        content:
+          application/json:
+            example:
+              $ref: examples/url_request.json
+            schema:
+              $ref: schemas/UrlRequest.yaml
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              example:
+                $ref: examples/201.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        403:
+          content:
+            application/json:
+              example:
+                $ref: examples/403.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        429:
+          content:
+            application/json:
+              example:
+                $ref: examples/url_429.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        500:
+          content:
+            application/json:
+              example:
+                $ref: examples/500.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''

@@ -1,0 +1,13 @@
+uriParameters:
+  network:
+    description: |
+      The network on which you want to invalidate or delete content,
+      either `staging` or the default `production` network. If
+      omitting this optional parameter, also omit any trailing slash
+      from the shortened URL.
+    enum:
+      - production
+      - staging
+    default: production
+    required: false
+    example: staging

@@ -1,0 +1,453 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Deletions",
+    "version": "1"
+  },
+  "servers": [],
+  "paths": {
+    "/delete/url/{network}": {
+      "post": {
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatus": 201,
+                  "estimatedSeconds": 5,
+                  "purgeId": "e535071c-26b2-11e7-94d7-276f2f54d938",
+                  "supportId": "17PY1492793544958045-219026624",
+                  "detail": "Request accepted"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatus": 403,
+                  "supportId": "17PY1492808186192427-253785280",
+                  "title": "unauthorized arl",
+                  "detail": "http://fpj-test.bad-ideas2.org/",
+                  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "supportId": "17PY1552425341153293-211776704",
+                  "title": "URL Rate Limit exceeded",
+                  "httpStatus": 429,
+                  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+                  "rateLimit": 10000,
+                  "rateLimitCurrentRequestSize": 110,
+                  "rateLimitRemaining": 94
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+                  "detail": "If problem persists over multiple requests, please contact Customer Care",
+                  "httpStatus": 500,
+                  "supportId": "17PY1491925494628797-286725312",
+                  "title": "internal error"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete by URL or ARL: Deletes content on the selected URL or ARL \nfor the selected `network`. In most cases, you should\n[invalidate](#postinvalidateurl) rather than delete content. URLs \nand ARLs can be submitted in the same request. Note that it takes \nlonger to purge ARLs when using the [Control Center](https://control.akamai.com/apps/fast-purge/#/ccu-main) \ninterface. Use this API to purge them within five seconds.\n",
+        "operationId": "POST_delete-url-network",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "objects": [
+                  "https://foo1.bar.com/some/path",
+                  "http://foo2.bar.com/some/other/path"
+                ]
+              },
+              "schema": {
+                "$ref": "#/components/schemas/UrlRequest"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "parameters": [
+        {
+          "name": "network",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/delete/cpcode/{network}": {
+      "post": {
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatus": 201,
+                  "estimatedSeconds": 5,
+                  "purgeId": "e535071c-26b2-11e7-94d7-276f2f54d938",
+                  "supportId": "17PY1492793544958045-219026624",
+                  "detail": "Request accepted"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatus": 403,
+                  "supportId": "17PY1492808186192427-253785280",
+                  "title": "unauthorized arl",
+                  "detail": "http://fpj-test.bad-ideas2.org/",
+                  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "supportId": "17PY1552428137949981-186598592",
+                  "title": "CPCODE Rate Limit exceeded",
+                  "httpStatus": 429,
+                  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+                  "rateLimit": 300,
+                  "rateLimitCurrentRequestSize": 5,
+                  "rateLimitRemaining": 1
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+                  "detail": "If problem persists over multiple requests, please contact Customer Care",
+                  "httpStatus": 500,
+                  "supportId": "17PY1491925494628797-286725312",
+                  "title": "internal error"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete by CP code: Deletes content on the selected CP code for\nthe selected `network`.  In most cases, you should\n[invalidate](#postinvalidatecpcode) rather than\ndelete content.\n",
+        "operationId": "POST_delete-cpcode-network",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "objects": [
+                  12345,
+                  98765
+                ]
+              },
+              "schema": {
+                "$ref": "#/components/schemas/CpCodeRequest"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "parameters": [
+        {
+          "name": "network",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    },
+    "/delete/tag/{network}": {
+      "post": {
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatus": 201,
+                  "estimatedSeconds": 5,
+                  "purgeId": "e535071c-26b2-11e7-94d7-276f2f54d938",
+                  "supportId": "17PY1492793544958045-219026624",
+                  "detail": "Request accepted"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "httpStatus": 403,
+                  "supportId": "17PY1492808186192427-253785280",
+                  "title": "unauthorized arl",
+                  "detail": "http://fpj-test.bad-ideas2.org/",
+                  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "429": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "supportId": "17PY1552421052431129-245347520",
+                  "title": "TAG Rate Limit exceeded",
+                  "httpStatus": 429,
+                  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+                  "rateLimit": 5000,
+                  "rateLimitCurrentRequestSize": 45,
+                  "rateLimitRemaining": 34
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "example": {
+                  "describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+                  "detail": "If problem persists over multiple requests, please contact Customer Care",
+                  "httpStatus": 500,
+                  "supportId": "17PY1491925494628797-286725312",
+                  "title": "internal error"
+                },
+                "schema": {
+                  "$ref": "#/components/schemas/Response"
+                }
+              }
+            }
+          }
+        },
+        "description": "Delete by cache tag: Deletes content on the selected set of\ncache tags for the selected `network`.  In most cases, you\nshould [invalidate](#postinvalidatebycachetag) rather\nthan delete content.\n",
+        "operationId": "POST_delete-tag-network",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "example": {
+                "objects": [
+                  "black-friday",
+                  "electronics",
+                  "laptops",
+                  "tablets"
+                ]
+              },
+              "schema": {
+                "$ref": "#/components/schemas/TagRequest"
+              }
+            }
+          },
+          "required": true
+        }
+      },
+      "parameters": [
+        {
+          "name": "network",
+          "in": "path",
+          "required": true,
+          "schema": {
+            "type": "string"
+          }
+        }
+      ]
+    }
+  },
+  "components": {
+    "schemas": {
+      "CpCodeRequest": {
+        "description": "Specifies a list of CP codes to invalidate or delete.",
+        "type": "object",
+        "properties": {
+          "objects": {
+            "type": "array",
+            "items": {
+              "description": "For CP code-based operations, an array of the CP codes you want to purge.",
+              "type": "integer"
+            }
+          }
+        },
+        "required": [
+          "objects"
+        ]
+      },
+      "TagRequest": {
+        "description": "Specifies a list of cache tags to invalidate or delete.",
+        "type": "object",
+        "properties": {
+          "objects": {
+            "type": "array",
+            "items": {
+              "description": "An array of cache tag strings you want to purge.",
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "objects"
+        ]
+      },
+      "UrlRequest": {
+        "description": "Specifies a list of URLs or ARLs to invalidate or delete. You can submit URLs and ARLs in the same purge request.",
+        "type": "object",
+        "properties": {
+          "objects": {
+            "type": "array",
+            "items": {
+              "description": "Lists URLs or ARLs to purge. Purges content for both `http` and `https` schemes.",
+              "type": "string"
+            }
+          }
+        },
+        "required": [
+          "objects"
+        ]
+      },
+      "Response": {
+        "description": "V3 Purge response schema",
+        "type": "object",
+        "properties": {
+          "describedBy": {
+            "description": "A URL that describes the API's error response.",
+            "type": "string"
+          },
+          "detail": {
+            "description": "Detailed information about the HTTP status code returned with the response.",
+            "type": "string"
+          },
+          "estimatedSeconds": {
+            "description": "The estimated number of seconds before the purge is to complete.",
+            "type": "integer"
+          },
+          "httpStatus": {
+            "description": "The HTTP code that indicates the status of the request to invalidate or purge content. Successful requests yield a `201` code.",
+            "type": "integer"
+          },
+          "purgeId": {
+            "description": "Unique identifier for the purge request.",
+            "type": "string"
+          },
+          "supportId": {
+            "description": "Identifier to provide Akamai Technical Support if issues arise.",
+            "type": "string"
+          },
+          "title": {
+            "description": "Describes the response type, for example, `Rate Limit exceeded`.",
+            "type": "string"
+          }
+        },
+        "required": [
+          "detail",
+          "httpStatus",
+          "supportId"
+        ]
+      }
+    },
+    "responses": {},
+    "parameters": {},
+    "examples": {},
+    "requestBodies": {},
+    "headers": {},
+    "securitySchemes": {},
+    "links": {},
+    "callbacks": {}
+  }
+}

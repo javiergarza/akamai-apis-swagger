@@ -1,0 +1,130 @@
+#%RAML 0.8
+title: Deletions
+version: 1
+baseUri: /ccu/v3
+mediaType: application/json
+
+schemas:
+  - CpCodeRequest: !include schemas/CPCodeRequest.json
+  - TagRequest: !include schemas/TagRequest.json
+  - UrlRequest: !include schemas/UrlRequest.json
+  - Response: !include schemas/Response.json
+traits:
+  - perNetwork: !include traits/perNetwork.yaml
+
+/delete/url/{network}:
+  displayName: delete url
+  is: [ perNetwork ]
+  post:
+    description: |
+      Delete by URL or ARL: Deletes content on the selected URL or ARL 
+      for the selected `network`. In most cases, you should
+      [invalidate](#postinvalidateurl) rather than delete content. URLs 
+      and ARLs can be submitted in the same request. Note that it takes 
+      longer to purge ARLs when using the [Control Center](https://control.akamai.com/apps/fast-purge/#/ccu-main) 
+      interface. Use this API to purge them within five seconds.
+    body:
+      application/json:
+        schema: UrlRequest
+        example: !include examples/url_request.json
+    responses:
+      201:
+        body:
+          application/json:
+            example: !include examples/201.json
+            schema: Response
+      400:
+        body:
+          application/json:
+            schema: Response
+      403:
+        body:
+          application/json:
+            example: !include examples/403.json
+            schema: Response
+      429:
+        body:
+          application/json:
+            example: !include examples/url_429.json
+            schema: Response
+      500:
+        body:
+          application/json:
+            example: !include examples/500.json
+            schema: Response
+/delete/cpcode/{network}:
+  displayName: delete cpcode
+  is: [ perNetwork ]
+  post:
+    description: |
+      Delete by CP code: Deletes content on the selected CP code for
+      the selected `network`.  In most cases, you should
+      [invalidate](#postinvalidatecpcode) rather than
+      delete content.
+    body:
+      application/json:
+        schema: CpCodeRequest
+        example: !include examples/cpcode_request.json
+    responses:
+      201:
+        body:
+          application/json:
+            example: !include examples/201.json
+            schema: Response
+      400:
+        body:
+          application/json:
+            schema: Response
+      403:
+        body:
+          application/json:
+            example: !include examples/403.json
+            schema: Response
+      429:
+        body:
+          application/json:
+            example: !include examples/cpcode_429.json
+            schema: Response
+      500:
+        body:
+          application/json:
+            example: !include examples/500.json
+            schema: Response
+/delete/tag/{network}:
+  displayName: delete by cache tag
+  is: [ perNetwork ]
+  post:
+    description: |
+      Delete by cache tag: Deletes content on the selected set of
+      cache tags for the selected `network`.  In most cases, you
+      should [invalidate](#postinvalidatebycachetag) rather
+      than delete content.
+    body:
+      application/json:
+        schema: TagRequest
+        example: !include examples/tag_request.json
+    responses:
+      201:
+        body:
+          application/json:
+            example: !include examples/201.json
+            schema: Response
+      400:
+        body:
+          application/json:
+            schema: Response
+      403:
+        body:
+          application/json:
+            example: !include examples/403.json
+            schema: Response
+      429:
+        body:
+          application/json:
+            example: !include examples/tag_429.json
+            schema: Response
+      500:
+        body:
+          application/json:
+            example: !include examples/500.json
+            schema: Response

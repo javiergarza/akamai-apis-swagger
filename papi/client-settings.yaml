@@ -1,0 +1,84 @@
+---
+  openapi: "3.0.0"
+  servers:
+    - url: https://akzz-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX.luna.akamaiapis.net/papi/v1
+  info:
+    title: "Client settings"
+    version: v1
+  paths:
+    /client-settings:
+      get:
+        summary: Get client settings
+        description: |
+          Get the current set of default values that apply to API clients keyed by the current authorization token.
+        operationId: "GET_client-settings"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  ruleFormat: v2015-08-08
+                  usePrefixes: true
+                schema:
+                  $ref: "#/components/schemas/client-settings-set-request"
+      put:
+        summary: Update client settings
+        description: |
+          Update the current set of default values
+          that apply to API clients keyed by the current authorization
+          token.
+        operationId: "PUT_client-settings"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  ruleFormat: v2015-08-08
+                  usePrefixes: true
+                schema:
+                  $ref: "#/components/schemas/client-settings-set-request"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              example:
+                ruleFormat: v2015-08-08
+                usePrefixes: true
+              schema:
+                $ref: "#/components/schemas/client-settings-set-request"
+  components:
+    schemas:
+      client-settings-set-request:
+        description: |
+          Specifies default settings for an API client.
+        type: object
+        required:
+          - "ruleFormat"
+          - "usePrefixes"
+        properties:
+          ruleFormat:
+            description: |
+              A string key indicating the dated version of the API's
+              set of features specified by a rule format schema. This
+              specifies the default rule format version to apply to
+              new properties. See [API versioning](doc:api-versioning) for
+              more information.
+            type: string
+          usePrefixes:
+            description: |
+              Whether ID values in response data should feature
+              three-letter prefixes to indicate their type. You can
+              set the `PAPI-Use-Prefixes` header to override the
+              client's default for each request. See [ID
+              prefixes](doc:id-prefixes) for more information.
+            type: boolean
+    responses: {}
+    parameters: {}
+    examples: {}
+    requestBodies: {}
+    headers: {}
+    securitySchemes: {}
+    links: {}
+    callbacks: {}

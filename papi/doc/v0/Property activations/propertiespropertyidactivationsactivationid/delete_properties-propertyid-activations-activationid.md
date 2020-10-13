@@ -1,0 +1,8 @@
+---
+title: "Cancel a pending activation"
+slug: "delete_properties-propertyid-activations-activationid"
+excerpt: "If you detect a problem with a property version while its\nactivation is still `PENDING`, this operation allows you to\ncancel it. Make a DELETE request on the response's\n`activationLink` from running [Activate a\nproperty](#postpropertyactivations).  Once you DELETE the\nactivation, it no longer appears in the [list of\nactivations](#getpropertyactivations), but you can still\n[access it individually](#getpropertyactivation).  If there\nare unexpected problems with an activation that goes live\nbefore you're able to cancel it, you often have a one-hour\nwindow to quickly fall back to a previous activation.  See\n[Create a new activation or\ndeactivation](#postpropertyactivations) for details.\n\nA successful cancellation results in a 200 response and an\n`ABORTED` status. If the activation is no longer `PENDING`,\na 422 (unprocessable) error indicates that it can no longer\nbe canceled.  Canceling an activation that has already been\ncanceled results in a 204 response, indicating there's no\nresource to delete. Canceling an unknown activation results\nin a 404 error.\n\nYou can only abort an activation while it's queued for\ndeployment across the various network zones with `PENDING`\nstatus. Once the window has closed and it's been dispatched\nacross the network, you can either [reactivate an older\nversion](#postpropertyactivations), or [create a new\nversion](#postpropertyversions) that fixes the problem and\nactivate that instead."
+hidden: false
+createdAt: "2020-06-05T13:18:15.881Z"
+updatedAt: "2020-06-05T16:44:58.498Z"
+---

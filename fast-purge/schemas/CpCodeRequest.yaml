@@ -1,0 +1,11 @@
+description: Specifies a list of CP codes to invalidate or delete.
+properties:
+  objects:
+    items:
+      description: For CP code-based operations, an array of the CP codes you want
+        to purge.
+      type: integer
+    type: array
+required:
+- objects
+type: object

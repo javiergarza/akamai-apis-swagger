@@ -1,0 +1,654 @@
+---
+  openapi: "3.0.0"
+  servers:
+    - url: https://akzz-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX.luna.akamaiapis.net/papi/v1
+  info:
+    title: "Property activations"
+    version: v1
+  paths:
+    /properties/{propertyId}/activations:
+      get:
+        summary: List activations
+        description: |
+          This lists all activations for all versions of a property, on both production and staging networks.
+        operationId: "GET_properties-propertyId-activations"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  accountId: act_1-1TJZFB
+                  contractId: ctr_1-1TJZH5
+                  groupId: grp_15225
+                  activations:
+                    items:
+                      - activationId: atv_1696985
+                        propertyName: "example.com"
+                        propertyId: prp_173136
+                        propertyVersion: 1
+                        network: "STAGING"
+                        activationType: "ACTIVATE"
+                        status: "ACTIVE"
+                        submitDate: "2014-03-05T02:22:12Z"
+                        updateDate: "2014-03-04T21:12:57Z"
+                        note: "Sample activation"
+                        notifyEmails:
+                          - "you@example.com"
+                          - "them@example.com"
+                      - activationId: atv_1696986
+                        propertyName: "example.com"
+                        propertyId: prp_173136
+                        propertyVersion: 1
+                        network: "PRODUCTION"
+                        activationType: "ACTIVATE"
+                        status: "ACTIVE"
+                        submitDate: "2014-03-02T02:22:12Z"
+                        updateDate: "2014-03-01T21:12:57Z"
+                        note: "Sample activation"
+                        fmaActivationState: steady
+                        notifyEmails:
+                          - "you@example.com"
+                          - "them@example.com"
+                        fallbackInfo:
+                          fastFallbackAttempted: false
+                          fallbackVersion: 10
+                          canFastFallback: true
+                          steadyStateTime: 1506448172
+                          fastFallbackExpirationTime: 1506451772
+                          fastFallbackRecoveryState: null
+                schema:
+                  $ref: "#/components/schemas/property-activation-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptional_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptional_groupId"
+      post:
+        summary: Create a new activation or deactivation
+        description: |
+          This operation creates a new property activation, which
+          deactivates any current activation. After a necessary delay,
+          this activates your property version's rule tree and set of
+          hostnames across Akamai's network of edge servers, modifying how
+          your edge content responds to end-user requests.
+          If there's a problem with the property you activated, you may
+          have the option to fall back to the previous version. Within an
+          hour of activating, POSTing another activation with
+          `\"useFastFallback\":true` in the request object disables the
+          current activation and falls back to the previous version. This
+          fallback takes a few seconds, but the option is available only
+          if there have been no changes to the set of property hostnames,
+          as indicated by the
+          [`canFastFallback`](#8b3213c5)
+          member.
+
+          If the activation request produces warnings, a 400 response
+          indicates this problem message: `{"type":
+          "/papi/v0/activation-warnings-not-acknowledged"}`. Subsequent
+          requests succeed if you list the `messageId` values in the
+          request's `acknowledgeWarnings` array. Once an activation is
+          successful, it responds with a 201 code and provides a
+          `Location` header and `activationLink` in the response
+          object indicating where to poll the status of the
+          activation.
+
+          > __Note__. If you set `activationType` to `DEACTIVATE` in
+          the POST request object, the property would deactivate and
+          no longer serve any traffic. You'd need to modify your DNS
+          configuration and specify a different way to handle the
+          traffic. See [Enable traffic for a new edge
+          hostname](doc:enable-traffic-for-a-new-edge-hostname) for more information.
+
+        operationId: "POST_properties-propertyId-activations"
+        responses:
+          201:
+            description: ""
+            headers:
+              Location:
+                schema:
+                  type: string
+            content:
+              application/json:
+                example:
+                  activationLink: "/papi/v0/properties/prp_173136/activations/atv_67037?contractId=ctr_1-1TJZFB&groupId=grp_15225"
+                schema:
+                  $ref: "#/components/schemas/property-activation-post-response"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              example:
+                propertyVersion: 1
+                network: "STAGING"
+                note: "Sample activation"
+                useFastFallback: false
+                notifyEmails:
+                  - "you@example.com"
+                  - "them@example.com"
+                acknowledgeWarnings:
+                  - "msg_baa4560881774a45b5fd25f5b1eab021d7c40b4f"
+              schema:
+                $ref: "#/components/schemas/property-activation-create-request"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptional_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptional_groupId"
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          description: |
+            Unique identifier for the property.
+            See [ID prefixes](doc:id-prefixes)
+            for details on omitting the value's `prp_` prefix.
+          schema:
+            type: string
+    /properties/{propertyId}/activations/{activationId}:
+      get:
+        summary: Get an activation
+        description: |
+          Gets details about an activation. You typically get a single activation from an `activationLink` when [launching a new activation](https://papi-akamai.readme.io/reference/propertiespropertyidactivations#post_properties-propertyid-activations) and following up to poll its `status`. For activations whose `status` is `PENDING`, a `Retry-After` header provides an estimate for when it's likely to change.
+        operationId: "GET_properties-propertyId-activations-activationId"
+        responses:
+          200:
+            description: ""
+            headers:
+              Retry-After:
+                schema:
+                  type: string
+            content:
+              application/json:
+                example:
+                  accountId: act_1-1TJZFB
+                  contractId: ctr_1-CONTRACT
+                  groupId: grp_15225
+                  activations:
+                    items:
+                      - activationId: atv_1696985
+                        propertyName: "example.com"
+                        propertyId: prp_173136
+                        propertyVersion: 1
+                        network: "STAGING"
+                        activationType: "ACTIVATE"
+                        status: "PENDING"
+                        submitDate: "2014-03-02T02:22:12Z"
+                        updateDate: "2014-03-01T21:12:57Z"
+                        note: "Sample activation"
+                        fmaActivationState: steady
+                        notifyEmails:
+                          - "you@example.com"
+                          - "them@example.com"
+                        fallbackInfo:
+                          fastFallbackAttempted: false
+                          fallbackVersion: 10
+                          canFastFallback: true
+                          steadyStateTime: 1506448172
+                          fastFallbackExpirationTime: 1506451772
+                          fastFallbackRecoveryState: null
+                schema:
+                  $ref: "#/components/schemas/property-activation-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamRequired_contractId"
+          - $ref: "#/components/parameters/trait_groupParamRequired_groupId"
+      delete:
+        summary: Cancel a pending activation
+        description: |
+          If you detect a problem with a property version while its
+          activation is still `PENDING`, this operation allows you to
+          cancel it. Make a DELETE request on the response's
+          `activationLink` from running [Activate a
+          property](https://papi-akamai.readme.io/reference/propertiespropertyidactivations#post_properties-propertyid-activations). Once you DELETE the
+          activation, it no longer appears in the [list of
+          activations](https://papi-akamai.readme.io/reference-link/get_properties-propertyid-activations), but you can still
+          [access it individually](https://papi-akamai.readme.io/reference/propertiespropertyidactivationsactivationid#get_properties-propertyid-activations-activationid). If there
+          are unexpected problems with an activation that goes live
+          before you're able to cancel it, you often have a one-hour
+          window to quickly fall back to a previous activation. See
+          [Create a new activation or
+          deactivation](https://papi-akamai.readme.io/reference/propertiespropertyidactivations#post_properties-propertyid-activations) for details.
+
+          A successful cancellation results in a 200 response and an
+          `ABORTED` status. If the activation is no longer `PENDING`,
+          a 422 (unprocessable) error indicates that it can no longer
+          be canceled. Canceling an activation that has already been
+          canceled results in a 204 response, indicating there's no
+          resource to delete. Canceling an unknown activation results
+          in a 404 error.
+
+          You can only abort an activation while it's queued for
+          deployment across the various network zones with `PENDING`
+          status. Once the window has closed and it's been dispatched
+          across the network, you can either [reactivate an older
+          version](https://papi-akamai.readme.io/reference/propertiespropertyidactivations#post_properties-propertyid-activations), or [create a new
+          version](https://papi-akamai.readme.io/reference/propertiespropertyidversions#post_properties-propertyid-versions) that fixes the problem and
+          activate that instead.
+        operationId: "DELETE_properties-propertyId-activations-activationId"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  activations:
+                    items:
+                      - activationId: atv_1696985
+                        propertyName: "example.com"
+                        propertyId: prp_173136
+                        propertyVersion: 1
+                        network: "STAGING"
+                        activationType: "ACTIVATE"
+                        status: "ABORTED"
+                        submitDate: "2014-03-02T02:22:12Z"
+                        updateDate: "2014-03-01T21:12:57Z"
+                        note: "Sample activation cancellation"
+                        accountId: act_1-1TJZFB
+                        groupId: grp_15225
+                        notifyEmails:
+                          - "you@example.com"
+                          - "them@example.com"
+                schema:
+                  $ref: "#/components/schemas/property-activation-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamRequired_contractId"
+          - $ref: "#/components/parameters/trait_groupParamRequired_groupId"
+      parameters:
+        - name: activationId
+          in: path
+          required: true
+          description: |
+            Unique identifier for the activation.
+          schema:
+            type: string
+        - name: propertyId
+          in: path
+          required: true
+          description: |
+            Unique identifier for the property.
+            See [ID prefixes](doc:id-prefixes)
+            for details on omitting the value's `prp_` prefix.
+          schema:
+            type: string
+  components:
+    schemas:
+      property-activation-create-request:
+        description: |
+          Activates property versions on a specific network. Relevant response objects appear within the outer [Envelope](#envelope) object's `activations.items` array.
+        type: object
+        required:
+          - "propertyVersion"
+          - "network"
+          - "notifyEmails"
+        properties:
+          propertyVersion:
+            type: integer
+          network:
+            type: string
+            enum:
+              - "STAGING"
+              - "PRODUCTION"
+          note:
+            type: string
+          notifyEmails:
+            type: array
+            items:
+              type: string
+          acknowledgeWarnings:
+            type: array
+            items:
+              description: |
+                A list of `msg_`-prefixed string IDs acknowledging any warnings noted in responses to previous activation requests.
+              type: string
+          acknowledgeAllWarnings:
+            default: false
+            description: |
+              When POSTing an activation, allows you to skip acknowledging each warning. With this enabled, you can omit the `acknowledgeWarnings` array.
+            type: boolean
+          activationType:
+            default: "ACTIVATE"
+            type: string
+            enum:
+              - "ACTIVATE"
+              - "DEACTIVATE"
+          fastPush:
+            default: true
+            description: |
+              Enable a fast metadata push when activating a new property, `true` by default.
+            type: boolean
+          useFastFallback:
+            default: false
+            description: |
+              After activating a property and finding it causes problems, POSTing another activation within one hour with `useFastFallback` enabled quickly rolls back to the previous version. This option is only available for activations where `canFastFallback` is `true`.
+            type: boolean
+          ignoreHttpErrors:
+            default: true
+            description: |
+              Ignore any HTTP errors when pushing fast metadata activation, `true` by default.
+            type: boolean
+          complianceRecord:
+            type: object
+      property-activation-get-response:
+        description: |
+          A common outer wrapping object structure that provides additional contextual details for a set of requested data. The data itself is available under various inner members' `items` array, even individual items. See [ID prefixes](doc:id-prefixes) for more information.
+        type: object
+        properties:
+          activations:
+            description: |
+              The set of requested activations, available within an `items` array.
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  description: |
+                    Activates property versions on a specific network. Relevant response objects appear within the outer [Envelope](#envelope) object's `activations.items` array.
+                  type: object
+                  required:
+                    - "activationId"
+                    - "activationType"
+                    - "network"
+                    - "note"
+                    - "notifyEmails"
+                    - "propertyId"
+                    - "propertyName"
+                    - "status"
+                    - "submitDate"
+                    - "updateDate"
+                  properties:
+                    accountId:
+                      description: |
+                        Identifies the account under which the property activated. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `act_` prefix.
+                      type: string
+                    activationId:
+                      description: |
+                        The activation's unique identifier. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `atv_` prefix.
+                      type: string
+                    activationType:
+                      description: |
+                        Either `ACTIVATE` or `DEACTIVATE`. The default is `ACTIVATE`. Any new activation automatically deactivates the current activation. Note that if you were to POST a `DEACTIVATE` type on an active property, it would no longer serve any traffic. You'd need to modify your DNS configuration and specify a different way to field the traffic.
+                      type: string
+                      enum:
+                        - "ACTIVATE"
+                        - "DEACTIVATE"
+                    fallbackInfo:
+                      description: |
+                        Encapsulates information about fast fallback, which may allow you to fallback to a previous activation when POSTing an activation with `useFastFallback` enabled.
+                      type: object
+                      required:
+                        - "canFastFallback"
+                        - "fallbackVersion"
+                        - "fastFallbackAttempted"
+                        - "fastFallbackExpirationTime"
+                        - "fastFallbackRecoveryState"
+                        - "steadyStateTime"
+                      properties:
+                        canFastFallback:
+                          description: |
+                            Whether the current activation can fallback to a previous version. This is typically `false` for new properties, or for property versions whose set of hostnames has changed.
+                          type: boolean
+                        fallbackVersion:
+                          description: |
+                            Indicates the property version that activates when a fast fallback succeeds.
+                          type: integer
+                        fastFallbackAttempted:
+                          description: |
+                            Whether a fast fallback has already been attempted on this activation.
+                          type: boolean
+                        fastFallbackExpirationTime:
+                          description: |
+                            Epoch second timestamp marking when fast fallback is no longer possible for this activation.
+                          type: integer
+                        fastFallbackRecoveryState:
+                          description: |
+                            Represents additional information available for any attempted fallback.
+                          type: string
+                        propertyVersion:
+                          description: |
+                            The version for which fast fallback may be available.
+                          type: integer
+                        steadyStateTime:
+                          description: |
+                            Epoch second timestamp marking when the activation completed, signaled by an `fmaActivationState` of `steady`.
+                          type: integer
+                    fmaActivationState:
+                      description: |
+                        Indicates fast metadata activation state. A value of `steady` indicates the property is currently active or has been cancelled. Values of `received`, `lived`, and `deployed` represent progressive stages of activation, while `cancelling` happens either after failing a network safety check or in response to a [DELETE operation](https://papi-akamai.readme.io/reference/propertiespropertyidactivationsactivationid#delete_properties-propertyid-activations-activationid). Note that the `status` member indicates whether the activation is live.
+                      type: string
+                      enum:
+                        - "steady"
+                        - "received"
+                        - "lived"
+                        - "deployed"
+                        - "cancelling"
+                    groupId:
+                      description: |
+                        Identifies the group under which the property activated. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `grp_` prefix.
+                      type: string
+                    network:
+                      description: |
+                        The network to activate on, either `STAGING` or `PRODUCTION`.
+                      type: string
+                      enum:
+                        - "STAGING"
+                        - "PRODUCTION"
+                    note:
+                      description: |
+                        Assigns a log message to the activation request.
+                      type: string
+                    notifyEmails:
+                      type: array
+                      items:
+                        description: |
+                          A list of email address strings to notify when the activation status changes.
+                        type: string
+                    propertyId:
+                      description: |
+                        Identifies property targeted with activation. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `prp_` prefix.
+                      type: string
+                    propertyName:
+                      description: |
+                        The name of the property targeted with activation.
+                      type: string
+                    propertyVersion:
+                      description: |
+                        The property version targeted with activation. Once activated, you can no longer modify that version of the property.
+                      type: integer
+                    status:
+                      description: |
+                        The activation's status: `ACTIVE` if currently serving traffic; `INACTIVE` if another activation has superseded this one; `NEW`, `PENDING`, `ZONE_1`, `ZONE_2`, or `ZONE_3` if not yet active; `ABORTED` if the client followed up with a [DELETE request](https://papi-akamai.readme.io/reference/propertiespropertyidactivationsactivationid#delete_properties-propertyid-activations-activationid) in time; `FAILED` if the activation causes a range of edge network errors that [may cause a fallback to the previous activation](doc:fast-validation); `PENDING_DEACTIVATION` or `DEACTIVATED` when the `activationType` is `DEACTIVATE` to no longer serve traffic.
+                      type: string
+                      enum:
+                        - "ACTIVE"
+                        - "INACTIVE"
+                        - "PENDING"
+                        - "ZONE_1"
+                        - "ZONE_2"
+                        - "ZONE_3"
+                        - "ABORTED"
+                        - "FAILED"
+                        - "DEACTIVATED"
+                        - "PENDING_DEACTIVATION"
+                        - "NEW"
+                    submitDate:
+                      description: |
+                        A date stamp marking when the activation initiated.
+                      type: string
+                    updateDate:
+                      description: |
+                        A date stamp marking when the `status` last changed.
+                      type: string
+      property-activation-post-response:
+        description: |
+          Provides a hypermedia link to a newly created resource. The response's single member name indicates the type of resource.
+        type: object
+        required:
+          - "activationLink"
+        properties:
+          activationLink:
+            description: |
+              Links the new activation.
+            type: string
+    responses: {}
+    parameters:
+      trait_contractParamRequired_contractId:
+        name: contractId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the contract.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptional_contractId:
+        name: contractId
+        in: query
+        description: |
+          Unique identifier for the contract.
+          The parameter is optional if the property has been
+          provisioned under only one contract.
+          Otherwise you need to specify it along with the `groupId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptionalBulk_contractId:
+        name: contractId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified contract. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_groupParamRequired_groupId:
+        name: groupId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the group.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptional_groupId:
+        name: groupId
+        in: query
+        description: |
+          Unique identifier for the group.
+          The parameter is optional if the property has been
+          provisioned under only one group.
+          Otherwise you need to specify it along with the `contractId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptionalBulk_groupId:
+        name: groupId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified group. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_optionsParam_options:
+        name: options
+        in: query
+        description: |
+          Comma-separated list of options to enable; `mapDetails`
+          enables extra mapping-related information.
+        schema:
+          type: string
+      trait_validateHostnamesParam_validateHostnames:
+        name: validateHostnames
+        in: query
+        description: |
+          When `false` (the default), skips validation tests that
+          would identify potential hostname-related problems within
+          the response object's `errors` and `warnings` arrays. See
+          [Property hostname errors](doc:property-hostname-errors)
+          for details on relevant error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateRulesParam_validateRules:
+        name: validateRules
+        in: query
+        description: |
+          Set to `true` by default. When `false`, skips validation
+          tests that would identify potential problems within the
+          response object's `errors` and `warnings` arrays. See the
+          [JSON problems](doc:json-problem-responses)
+          section for details on this error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateModeParam_validateMode:
+        name: validateMode
+        in: query
+        description: |
+          With `validateRules` enabled, setting this to `fast`
+          performs a quick validation check based on the provided
+          JSON. This is faster than the default `full` validation,
+          which performs more extensive checks on the converted XML
+          metadata configuration.
+        schema:
+          default: full
+          type: string
+          enum:
+            - "full"
+            - "fast"
+      trait_dryRunParam_dryRun:
+        name: dryRun
+        in: query
+        description: |
+          With `validateRules` also enabled, allows for a _dry run_ in
+          order to gather any possible errors without saving the rule
+          tree.
+        schema:
+          default: false
+          type: boolean
+      trait_paginated_offset:
+        name: offset
+        in: query
+        description: |
+          For paginated responses, specifies the page of results to
+          include, starting from `0`.
+        schema:
+          minimum: 0
+          type: integer
+      trait_paginated_limit:
+        name: limit
+        in: query
+        description: |
+          For paginated responses, specifies the number of results to
+          include on each page.
+        schema:
+          minimum: 1
+          type: integer
+      trait_usePrefixesHeader_PAPI-Use-Prefixes:
+        name: "PAPI-Use-Prefixes"
+        description: |
+          Sets whether to display three-letter prefixes in various ID values in response data. This may override the client's default `usePrefixes` setting. See [ID Prefixes](doc:id-prefixes).
+        in: header
+        required: true
+        schema:
+          type: string
+    examples: {}
+    requestBodies: {}
+    headers: {}
+    securitySchemes: {}
+    links: {}
+    callbacks: {}

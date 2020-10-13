@@ -1,0 +1,9 @@
+{
+"supportId": "17PY1552421052431129-245347520",
+"title": "TAG Rate Limit exceeded",
+"httpStatus": 429,
+"describedBy": "https://developer.akamai.com/api/core_features/fast_purge/v3.html#httpcodes",
+"rateLimit": 5000,
+"rateLimitCurrentRequestSize": 45,
+"rateLimitRemaining": 34
+}

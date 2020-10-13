@@ -1,0 +1,10 @@
+description: Specifies a list of cache tags to invalidate or delete.
+properties:
+  objects:
+    items:
+      description: An array of cache tag strings you want to purge.
+      type: string
+    type: array
+required:
+- objects
+type: object

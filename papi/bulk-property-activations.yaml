@@ -1,0 +1,653 @@
+---
+  openapi: "3.0.0"
+  servers:
+    - url: https://akzz-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX.luna.akamaiapis.net/papi/v1
+  info:
+    title: "Bulk Property Activations"
+    version: v1
+  paths:
+    /bulk/activations:
+      post:
+        summary: Bulk activate a set of properties
+        description: |
+          XXX Bulk activate a set of property versions.
+          (Alternately, perform a bulk [fallback](doc:fast-validation) to the previous
+          activation within an hour of the previous bulk activation.)
+          Base the set of versions to activate on the results of a
+          [bulk patch](https://dash.readme.com/project/papi-akamai/v1/refs/get_bulk-rules-patch-requests-bulkpatchid)
+          operation, which you use to create a
+          [BulkActivation](#bulkactivation) POST object.
+          This operation launches an asynchronous process to update
+          properties. To check its progress, run the
+          [List bulk-activated properties](https://papi-akamai.readme.io/reference/bulkactivationsbulkactivationid#get_bulk-activations-bulkactivationid)
+          operation, whose link is available in the `Location` header or
+          `bulkActivationLink` member of this operation's response. See
+          [Bulk Search and Update](doc:learn-about-bulk)
+          for overall guidance on this feature.
+        operationId: "POST_bulk-activations"
+        responses:
+          202:
+            description: ""
+            headers:
+              Location:
+                schema:
+                  type: string
+            content:
+              application/json:
+                example:
+                  bulkActivationLink: "/papi/v0/bulk/activations/311?contractId=ctr_1-1TJZFB&groupId=grp_15225"
+                schema:
+                  $ref: "#/components/schemas/bulk-property-activation-post-response"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              example:
+                defaultActivationSettings:
+                  acknowledgeAllWarnings: true
+                  useFastFallback: false
+                  fastPush: true
+                  notifyEmails:
+                    - "you@example.com"
+                    - "them@example.com"
+                activatePropertyVersions:
+                  - propertyId: prp_1
+                    propertyVersion: 2
+                    network: "STAGING"
+                    note: "Some activation note"
+                  - propertyId: prp_15
+                    propertyVersion: 3
+                    network: "STAGING"
+                    note: "Sample activation"
+                    notifyEmails:
+                      - "someoneElse@somewhere.com"
+                  - propertyId: prp_3
+                    propertyVersion: 11
+                    network: "PRODUCTION"
+                    acknowledgeAllWarnings: false
+                    note: "created by xyz"
+                    acknowledgeWarnings:
+                      - "msg_123"
+                      - "msg_234"
+              schema:
+                $ref: "#/components/schemas/bulk-property-activation-create-request"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptionalBulk_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptionalBulk_groupId"
+    /bulk/activations/{bulkActivationId}:
+      get:
+        summary: List bulk-activated properties
+        description: |
+          List all activations that result from a [bulk activation request](https://papi-akamai.readme.io/reference/bulkactivations#post_bulk-activations), and poll the asynchronous process's status. Once the overall `bulkActivationStatus` is `COMPLETE`, check each activation's `activationStatus` to confirm it's `ACTIVATED`. The response is a [BulkActivation](#bulkactivation) GET object. See [Bulk Search and Update](doc:learn-about-bulk) for overall guidance on this feature.
+        operationId: "GET_bulk-activations-bulkActivationId"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  bulkActivationId: 234
+                  bulkActivationStatus: "COMPLETE"
+                  bulkActivationSubmitDate: "2018-01-18T00:00:00Z"
+                  bulkActivationUpdateDate: "2018-01-18T01:00:00Z"
+                  defaultActivationSettings:
+                    acknowledgeAllWarnings: true
+                    useFastFallback: false
+                    fastPush: true
+                  activatePropertyVersions:
+                    - propertyId: prp_1
+                      propertyVersion: 2
+                      acknowledgeAllWarnings: true
+                      useFastFallback: false
+                      fastPush: true
+                      network: "STAGING"
+                      note: "Some activation note"
+                      taskStatus: "COMPLETE"
+                      activationStatus: "NEW"
+                      activationSubmitDate: "2018-01-18T00:00:00Z"
+                      activationUpdateDate: "2018-01-18T00:00:00Z"
+                      propertyActivationLink: "/papi/v1/properties/prp_1/activations/act_1"
+                      notifyEmails:
+                        - "you@example.com"
+                        - "them@example.com"
+                    - propertyId: prp_15
+                      propertyVersion: 3
+                      acknowledgeAllWarnings: true
+                      useFastFallback: false
+                      fastPush: true
+                      network: "STAGING"
+                      note: "Sample activation"
+                      taskStatus: "COMPLETE"
+                      activationStatus: "NEW"
+                      activationSubmitDate: "2018-01-18T00:00:00Z"
+                      activationUpdateDate: "2018-01-18T00:00:00Z"
+                      propertyActivationLink: "/papi/v1/properties/prp_1/activations/act_1"
+                      numberOfWarningsFromActivation: 5
+                      notifyEmails:
+                        - "someoneElse@somewhere.com"
+                    - propertyId: prp_3
+                      propertyVersion: 11
+                      useFastFallback: false
+                      fastPush: true
+                      network: "PRODUCTION"
+                      acknowledgeAllWarnings: false
+                      note: "created by xyz"
+                      taskStatus: "COMPLETE"
+                      activationStatus: "NEW"
+                      activationSubmitDate: "2018-01-18T00:00:00Z"
+                      activationUpdateDate: "2018-01-18T00:00:00Z"
+                      propertyActivationLink: "/papi/v1/properties/prp_1/activations/act_1"
+                      notifyEmails:
+                        - "you@example.com"
+                        - "them@example.com"
+                    - propertyId: prp_4
+                      propertyVersion: 2
+                      acknowledgeAllWarnings: false
+                      useFastFallback: false
+                      fastPush: true
+                      network: "STAGING"
+                      note: "Some activation note"
+                      taskStatus: "SUBMISSION_ERROR"
+                      activationStatus: "NEW"
+                      activationSubmitDate: "2018-01-18T00:00:00Z"
+                      activationUpdateDate: "2018-01-18T00:00:00Z"
+                      propertyActivationLink: "/papi/v1/properties/prp_1/activations/act_1"
+                      notifyEmails:
+                        - "you@example.com"
+                        - "them@example.com"
+                      activationWarnings:
+                        - type: "https://problems.luna.akamaiapis.net/papi/v0/validation/product_behavior_issue.cpcode_incorrect_product"
+                          detail: "The CP Code within `Content Provider Code` isn't configured for use with the product used by this property, Dynamic Site Accelerator. Traffic for this property might not show up under the correct traffic reports."
+                          messageId: msg_48d27043qr3r2322781ac6dd06763470987ed7a5d
+                    - propertyId: prp_5
+                      propertyVersion: 3
+                      acknowledgeAllWarnings: true
+                      useFastFallback: false
+                      fastPush: true
+                      network: "STAGING"
+                      note: "Some activation note"
+                      taskStatus: "SUBMISSION_ERROR"
+                      activationStatus: "NEW"
+                      activationSubmitDate: "2018-01-18T00:00:00Z"
+                      activationUpdateDate: "2018-01-18T00:00:00Z"
+                      propertyActivationLink: "/papi/v1/properties/prp_1/activations/act_1"
+                      fatalError: "activation requires a valid notifyEmail"
+                schema:
+                  $ref: "#/components/schemas/bulk-property-activation-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptionalBulk_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptionalBulk_groupId"
+      parameters:
+        - name: bulkActivationId
+          in: path
+          required: true
+          description: |
+            Identifies each bulk activation job.
+          schema:
+            type: integer
+  components:
+    schemas:
+      bulk-property-activation-create-request:
+        description: |
+          Encapsulates each batch of bulk activations. While
+          essentially a wrapper for an [Activation](#activation)
+          object array, this specifies additional settings to apply to
+          all activations within the batch.
+        type: object
+        required:
+          - "activatePropertyVersions"
+        properties:
+          defaultActivationSettings:
+            description: |
+              Specifies activation settings to apply to all properties.
+            type: object
+            properties:
+              notifyEmails:
+                type: array
+                items:
+                  description: |
+                    A list of email address strings to notify when the
+                    activation status changes for any property within
+                    the bulk activation. Note that you can supplement
+                    additional email addresses for each property you
+                    activate.
+                  type: string
+              acknowledgeAllWarnings:
+                description: |
+                  For all activations, skip acknowledging any warnings
+                  for all properties within the bulk activation
+                  job. Unless this is enabled, you need to specify
+                  `acknowledgeWarnings` arrays with `messageId`
+                  warning values for each activation.
+                type: boolean
+              useFastFallback:
+                description: |
+
+                  When enabled, rolls back to the previous activation
+                  of each property included in the bulk activation
+                  job. If you [bulk activate a set of
+                  properties](https://papi-akamai.readme.io/reference/bulkactivations#post_bulk-activations), and then
+                  within one hour discover a serious problem you
+                  didn't previously detect, enabling this in a
+                  follow-up bulk activation request effectively
+                  cancels all the activations. See [Fast Validation
+                  and Activation](doc:fast-validation) for
+                  guidance. Note that while the fast fallback option
+                  ordinarily doesn't apply to activations that affect
+                  a different set of hostnames, this scenario is
+                  unlikely when bulk-modifying properties.
+
+                type: boolean
+              fastPush:
+                description: |
+                  Enable fast metadata push when bulk activating properties, `true` by default.
+                type: boolean
+          activatePropertyVersions:
+            type: array
+            items:
+              description: |
+
+                Specifies each property version to include in the bulk
+                activation. Following bulk activation, this reflects
+                the activation state for each property.
+
+              type: object
+              required:
+                - "propertyId"
+                - "propertyVersion"
+                - "network"
+              properties:
+                propertyId:
+                  pattern: "^(prp_|PRP_)?[0-9]+$"
+                  description: |
+                    Identifies each property targeted for
+                    activation. See [ID prefixes](doc:id-prefixes) for
+                    details on how to omit the ID's `prp_` prefix.
+
+                  type: string
+                propertyVersion:
+                  description: |
+                    The property version targeted for activation. Once
+                    activated, you can no longer modify that version
+                    of the property.
+                  type: integer
+                network:
+                  description: |
+                    The network on which to activate this property,
+                    either `STAGING` or `PRODUCTION`.
+                  type: string
+                  enum:
+                    - "STAGING"
+                    - "PRODUCTION"
+                note:
+                  description: |
+                    An optional log message for this property's
+                    activation.
+                  type: string
+                acknowledgeWarnings:
+                  type: array
+                  items:
+                    description: |
+                      Lists property warning `messageId` values to acknowledge, unnecessary when `acknowledgeAllWarnings` is enabled.
+                    type: string
+      bulk-property-activation-get-response:
+        description: |
+          Encapsulates each batch of bulk activations. While
+          essentially a wrapper for an [Activation](#activation)
+          object array, this specifies additional settings to apply to
+          all activations within the batch. See [Bulk Search and
+          Update](doc:learn-about-bulk) for guidance on this feature.
+        type: object
+        required:
+          - "bulkActivationId"
+          - "bulkActivationStatus"
+          - "bulkActivationSubmitDate"
+          - "bulkActivationUpdateDate"
+        properties:
+          bulkActivationId:
+            description: |
+              Unique identifier for each bulk activation request.
+            type: integer
+          bulkActivationStatus:
+            description: |
+              Reflects the status of the entire bulk update request, either `PENDING`, `IN_PROGRESS`, or `COMPLETE`.
+            type: string
+            enum:
+              - "PENDING"
+              - "COMPLETE"
+              - "IN_PROGRESS"
+          bulkActivationSubmitDate:
+            description: |
+              An ISO 8601 timestamp indicating when the bulk activation process initiated.
+            type: string
+          bulkActivationUpdateDate:
+            description: |
+              An ISO 8601 timestamp indicating when the `bulkActivationStatus` last changed.
+            type: string
+          message:
+            description: |
+              A notification in case the bulk request repeatedly fails to process.
+            type: string
+          activatePropertyVersions:
+            type: array
+            items:
+              description: |
+                Specifies each property version to include in the bulk activation. Following bulk activation, this reflects the activation state for each property.
+              type: object
+              required:
+                - "propertyId"
+                - "propertyVersion"
+                - "acknowledgeAllWarnings"
+                - "useFastFallback"
+                - "fastPush"
+                - "network"
+                - "activationStatus"
+                - "activationSubmitDate"
+                - "activationUpdateDate"
+                - "propertyActivationLink"
+              properties:
+                propertyId:
+                  description: |
+                    Identifies each property targeted for activation within the bulk activation job. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `prp_` prefix.
+                  type: string
+                propertyVersion:
+                  description: |
+                    Identifies the property version targeted for activation within the bulk activation job. Once activated, you can no longer modify that version of the property.
+                  type: integer
+                propertyName:
+                  description: |
+                    Identifies the property name targeted for activation within the bulk activation job.
+                  type: string
+                notifyEmails:
+                  type: array
+                  items:
+                    description: |
+                      A list of email address strings to notify when this property's `activationStatus` changes. Note that these may supplement the set of `notifyEmails` specified within the bulk activation request's `defaultActivationSettings`.
+                    type: string
+                acknowledgeAllWarnings:
+                  description: |
+                    Indicates whether `acknowledgeAllWarnings` was specified as part of the bulk activation request's `defaultActivationSettings`, thus allowing this and other properties to activate despite any warnings.
+                  type: boolean
+                useFastFallback:
+                  description: |
+                    Indicates whether `useFastFallback` was specified as part of the bulk activation request's `defaultActivationSettings`, thus allowing this and other properties to quickly fall back to the previous activation.
+                  type: boolean
+                fastPush:
+                  description: |
+                    Indicates whether `fastPush` was specified as part of the bulk activation request's `defaultActivationSettings`, thus allowing this and other properties to rely on fast metadata push.
+                  type: boolean
+                fatalError:
+                  description: |
+                    Indicates an error that prevented this property version from activating.
+                  type: string
+                network:
+                  description: |
+                    The network on which to activate this property, either `STAGING` or `PRODUCTION`.
+                  type: string
+                  enum:
+                    - "STAGING"
+                    - "PRODUCTION"
+                activationErrors:
+                  type: array
+                  items:
+                    description: |
+                      A list of any validation errors that prevented a bulk activation.
+                    type: object
+                    properties:
+                      type:
+                        description: |
+                          A URI that identifies each error case. See the [Errors](doc:papi-errors) section for details on each.
+                        type: string
+                      detail:
+                        description: |
+                          Provides context for the problem that triggered the error.
+                        type: string
+                activationWarnings:
+                  type: array
+                  items:
+                    description: |
+                      Lists any validation warnings resulting from the bulk activation, which you'd need to acknowledge when bulk-activating property versions.
+                    type: object
+                    properties:
+                      type:
+                        description: |
+                          A URI that identifies each warning case. See the [Errors](doc:papi-errors) section for details on each.
+                        type: string
+                      detail:
+                        description: |
+                          Provides context for the problem that triggered the warning.
+                        type: string
+                      messageId:
+                        description: |
+                          Provides a `messageId` value for the warnings, which you may need to acknowledge when bulk-activating property versions. Specifying `acknowledgeAllWarnings` avoids the need to acknowledge specific `messageId` values.
+                        type: string
+                note:
+                  description: |
+                    An optional log message for this property's activation.
+                  type: string
+                activationStatus:
+                  description: |
+                    This property's initial activation status usually `NEW`. Values match those of the [Activation](#activation) object: `ACTIVE`, `INACTIVE`, `NEW`, `PENDING`, `ZONE_1`, `ZONE_2`, `ZONE_3`, `ABORTED`, `FAILED`, `PENDING_DEACTIVATION` or `DEACTIVATED`.
+                  type: string
+                  enum:
+                    - "ACTIVE"
+                    - "INACTIVE"
+                    - "PENDING"
+                    - "ZONE_1"
+                    - "ZONE_2"
+                    - "ZONE_3"
+                    - "ABORTED"
+                    - "FAILED"
+                    - "DEACTIVATED"
+                    - "PENDING_DEACTIVATION"
+                    - "NEW"
+                taskStatus:
+                  description: |
+                    This property's initial task status. Values match those of the [Activation](#activation) object: `PENDING`, `IN_PROGRESS`, `SUBMITTED`, `INTERRUPTED`, `SUBMISSION_ERROR`, and `COMPLETE`.
+                  type: string
+                  enum:
+                    - "PENDING"
+                    - "IN_PROGRESS"
+                    - "SUBMITTED"
+                    - "INTERRUPTED"
+                    - "SUBMISSION_ERROR"
+                    - "COMPLETE"
+                activationSubmitDate:
+                  description: |
+                    An ISO 8601 timestamp indicating when activation initiated for this property.
+                  type: string
+                activationUpdateDate:
+                  description: |
+                    An ISO 8601 timestamp indicating when this property's `activationStatus` last changed.
+                  type: string
+                propertyActivationLink:
+                  description: |
+                    Provides an API hypermedia link to each activation within the bulk activation job.
+                  type: string
+          defaultActivationSettings:
+            description: |
+              Common settings to apply to all activations in the batch.
+            type: object
+            properties:
+              notifyEmails:
+                type: array
+                items:
+                  description: |
+                    A list of email address strings to notify when the activation status changes for any property within the bulk activation. Note that you can supplement additional email addresses for each property you activate.
+                  type: string
+      bulk-property-activation-post-response:
+        description: |
+          Provides a hypermedia link to a newly created resource. The response's single member name indicates the type of resource.
+        type: object
+        required:
+          - "bulkActivationLink"
+        properties:
+          bulkActivationLink:
+            description: |
+              Links the newly created bulk activation process.
+            type: string
+    responses: {}
+    parameters:
+      trait_contractParamRequired_contractId:
+        name: contractId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the contract.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptional_contractId:
+        name: contractId
+        in: query
+        description: |
+          Unique identifier for the contract.
+          The parameter is optional if the property has been
+          provisioned under only one contract.
+          Otherwise you need to specify it along with the `groupId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptionalBulk_contractId:
+        name: contractId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified contract. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_groupParamRequired_groupId:
+        name: groupId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the group.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptional_groupId:
+        name: groupId
+        in: query
+        description: |
+          Unique identifier for the group.
+          The parameter is optional if the property has been
+          provisioned under only one group.
+          Otherwise you need to specify it along with the `contractId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptionalBulk_groupId:
+        name: groupId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified group. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_optionsParam_options:
+        name: options
+        in: query
+        description: |
+          Comma-separated list of options to enable; `mapDetails`
+          enables extra mapping-related information.
+        schema:
+          type: string
+      trait_validateHostnamesParam_validateHostnames:
+        name: validateHostnames
+        in: query
+        description: |
+          When `false` (the default), skips validation tests that
+          would identify potential hostname-related problems within
+          the response object's `errors` and `warnings` arrays. See
+          [Property hostname errors](doc:property-hostname-errors)
+          for details on relevant error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateRulesParam_validateRules:
+        name: validateRules
+        in: query
+        description: |
+          Set to `true` by default. When `false`, skips validation
+          tests that would identify potential problems within the
+          response object's `errors` and `warnings` arrays. See the
+          [JSON problems](doc:json-problem-responses)
+          section for details on this error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateModeParam_validateMode:
+        name: validateMode
+        in: query
+        description: |
+          With `validateRules` enabled, setting this to `fast`
+          performs a quick validation check based on the provided
+          JSON. This is faster than the default `full` validation,
+          which performs more extensive checks on the converted XML
+          metadata configuration.
+        schema:
+          default: full
+          type: string
+          enum:
+            - "full"
+            - "fast"
+      trait_dryRunParam_dryRun:
+        name: dryRun
+        in: query
+        description: |
+          With `validateRules` also enabled, allows for a _dry run_ in
+          order to gather any possible errors without saving the rule
+          tree.
+        schema:
+          default: false
+          type: boolean
+      trait_paginated_offset:
+        name: offset
+        in: query
+        description: |
+          For paginated responses, specifies the page of results to
+          include, starting from `0`.
+        schema:
+          minimum: 0
+          type: integer
+      trait_paginated_limit:
+        name: limit
+        in: query
+        description: |
+          For paginated responses, specifies the number of results to
+          include on each page.
+        schema:
+          minimum: 1
+          type: integer
+      trait_usePrefixesHeader_PAPI-Use-Prefixes:
+        name: "PAPI-Use-Prefixes"
+        description: |
+          Sets whether to display three-letter prefixes in various ID values in response data. This may override the client's default `usePrefixes` setting. See [ID Prefixes](doc:id-prefixes).
+        in: header
+        required: true
+        schema:
+          type: string
+    examples: {}
+    requestBodies: {}
+    headers: {}
+    securitySchemes: {}
+    links: {}
+    callbacks: {}

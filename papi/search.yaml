@@ -1,0 +1,375 @@
+---
+  openapi: "3.0.0"
+  servers:
+    - url: https://akzz-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX.luna.akamaiapis.net/papi/v1
+  info:
+    title: "Search"
+    version: v1
+  paths:
+    /search/find-by-value:
+      summary: Search
+      post:
+        summary: Search properties
+        description: |
+          This operation searches properties by name, or by the
+          hostname or edge hostname for which it's currently
+          active. Specify a [Search](#search) request object with a
+          single query member. The response lists the matching set of
+          currently active property versions, and also the latest
+          version if inactive. Each of the response's
+          [Version](#version) objects features additional context for
+          the property in which it appears, or the account, contract,
+          or group under which the property was provisioned. Note that
+          to perform more complex searches for content within a rule
+          tree, run [Bulk search a set of
+          properties](https://papi-akamai.readme.io/reference/bulkrules-search-requests#post_bulk-rules-search-requests) instead. Does <<portal_name>>
+          work? No.
+        operationId: "POST_search-find-by-value"
+        responses:
+          200:
+            description: |
+              Success
+            content:
+              application/json:
+                example:
+                  versions:
+                    items:
+                     - accountId: act_1-1TJZFB
+                       assetId: aid_10333526
+                       contractId: ctr_1-1TJZH5
+                       groupId: grp_41443
+                       productionStatus: "INACTIVE"
+                       propertyId: prp_243865
+                       propertyName: fifi2
+                       propertyVersion: 6
+                       stagingStatus: "INACTIVE"
+                       updatedByUser: dfknmimouc3ssovc
+                       updatedDate: "2017-08-07T15:39:49Z"
+                     - accountId: act_1-1TJZFB
+                       assetId: aid_10333526
+                       contractId: ctr_1-1TJZH5
+                       groupId: grp_41443
+                       productionStatus: "ACTIVE"
+                       propertyId: prp_243865
+                       propertyName: fifi2
+                       propertyVersion: 1
+                       stagingStatus: "INACTIVE"
+                       updatedByUser: mvanhorn
+                       updatedDate: "2015-06-27T20:37:16Z"
+                schema:
+                  $ref: "#/components/schemas/search-post-response"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              example:
+                propertyName: "www.example.com_pm"
+              schema:
+                $ref: "#/components/schemas/search-property-versions"
+        parameters:
+         - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+  components:
+    schemas:
+      search-property-versions:
+        minProperties: 1
+        maxProperties: 1
+        description: |
+          A query to search currently active properties. Only one query member is allowed in the POST request.
+        type: object
+        additionalProperties: false
+        properties:
+          propertyName:
+            description: |
+              Search for properties by name.
+            type: string
+          hostname:
+            description: |
+              Search for property versions active on a specific hostname.
+            type: string
+          edgeHostname:
+            description: |
+              Search for property versions active on a specific edge hostname.
+            type: string
+      search-post-response:
+        description: |
+          A common outer wrapping object structure that provides
+          additional contextual details for a set of requested
+          data. The data itself is available under various inner
+          members' `items` array, even individual items. See [ID
+          prefixes](doc:id-prefixes) for more information.
+        type: object
+        properties:
+          accountId:
+            description: |
+              Identifies the prevailing account under which the data was requested. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `act_` prefix.
+            type: string
+          assetId:
+            description: |
+              An alternative [property](#property) identifier, for internal use.
+            type: string
+          contractId:
+            default: SIERRA
+            description: |
+              Uniquely identifies the prevailing [contract](#contract) under which the data was requested. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `ctr_` prefix.
+            type: string
+          groupId:
+            description: |
+              Uniquely identifies the prevailing [group](#group) under which the data was requested. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `grp_` prefix.
+            type: string
+          propertyId:
+            description: |
+              Uniquely identifies the [property](#property) for the version yielded in search results, or its component rules or hostnames. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `prp_` prefix.
+            type: string
+          propertyName:
+            description: |
+              A descriptive name for the property whose version appears in search results.
+            type: string
+          versions:
+            description: |
+              The set of requested property versions, available within an `items` array.
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  description: |
+                    Specifies the version of a property. Relevant response objects appear within the outer [Envelope](#envelope) object's `versions.items` array. Additional contextual members appear in POST response listings when [searching property versions](https://papi-akamai.readme.io/reference/searchfind-by-value#post_search-find-by-value). (For the POST request to create a new version, see the [CreateVersion](#createversion) object type.)
+                  type: object
+                  required:
+                    - "accountId"
+                    - "assetId"
+                    - "contractId"
+                    - "groupId"
+                    - "productionStatus"
+                    - "propertyId"
+                    - "propertyName"
+                    - "propertyVersion"
+                    - "stagingStatus"
+                    - "updatedByUser"
+                    - "updatedDate"
+                  properties:
+                    accountId:
+                      description: |
+                        In [search results](https://papi-akamai.readme.io/reference/searchfind-by-value#post_search-find-by-value), identifies the account under which the property version is active. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `act_` prefix.
+                      type: string
+                    assetId:
+                      description: |
+                        In [search results](https://papi-akamai.readme.io/reference/searchfind-by-value#post_search-find-by-value), provides an alternative [property](#property) identifier, for internal use.
+                      type: string
+                    contractId:
+                      default: SIERRA
+                      description: |
+                        In [search results](https://papi-akamai.readme.io/reference/searchfind-by-value#post_search-find-by-value), identifies the contract under which the property version is active. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `ctr_` prefix.
+                      type: string
+                    edgeHostname:
+                      description: |
+                        When searching for `hostname` or `edgeHostname`, this shows the relevant edge hostname to which the active version currently applies.
+                      type: string
+                    groupId:
+                      description: |
+                        In [search results](https://papi-akamai.readme.io/reference/searchfind-by-value#post_search-find-by-value), identifies the group under which the property version is active. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `grp_` prefix.
+                      type: string
+                    hostname:
+                      description: |
+                        When searching for `hostname` or `edgeHostname`, this shows the relevant property hostname to which the active version currently applies.
+                      type: string
+                    productionStatus:
+                      description: |
+                        Whether the version has been activated to the production network. If `ACTIVE`, the version is read-only. Otherwise it may be `INACTIVE` or `PENDING`.
+                      type: string
+                      enum:
+                        - "ACTIVE"
+                        - "INACTIVE"
+                        - "PENDING"
+                    propertyId:
+                      description: |
+                        In [search results](https://papi-akamai.readme.io/reference/searchfind-by-value#post_search-find-by-value), identifies the property to which the listed version belongs. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `prp_` prefix.
+                      type: string
+                    propertyName:
+                      description: |
+                        In [search results](https://papi-akamai.readme.io/reference/searchfind-by-value#post_search-find-by-value), provides the name of the property to which the listed version belongs.
+                      type: string
+                    propertyVersion:
+                      minimum: 1
+                      description: |
+                        A positive integer identifying the incremental version.
+                      type: integer
+                    stagingStatus:
+                      description: |
+                        Whether the version has been activated to the test network. If `ACTIVE`, the version is read-only. Otherwise it may be `INACTIVE` or `PENDING`.
+                      type: string
+                      enum:
+                        - "ACTIVE"
+                        - "INACTIVE"
+                        - "PENDING"
+                    updatedByUser:
+                      description: |
+                        The username who last updated the new version.
+                      type: string
+                    updatedDate:
+                      description: |
+                        The date stamp of the version's latest update.
+                      type: string
+    responses: {}
+    parameters:
+      trait_contractParamRequired_contractId:
+        name: contractId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the contract.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptional_contractId:
+        name: contractId
+        in: query
+        description: |
+          Unique identifier for the contract.
+          The parameter is optional if the property has been
+          provisioned under only one contract.
+          Otherwise you need to specify it along with the `groupId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptionalBulk_contractId:
+        name: contractId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified contract. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_groupParamRequired_groupId:
+        name: groupId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the group.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptional_groupId:
+        name: groupId
+        in: query
+        description: |
+          Unique identifier for the group.
+          The parameter is optional if the property has been
+          provisioned under only one group.
+          Otherwise you need to specify it along with the `contractId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptionalBulk_groupId:
+        name: groupId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified group. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_optionsParam_options:
+        name: options
+        in: query
+        description: |
+          Comma-separated list of options to enable; `mapDetails`
+          enables extra mapping-related information.
+        schema:
+          type: string
+      trait_validateHostnamesParam_validateHostnames:
+        name: validateHostnames
+        in: query
+        description: |
+          When `false` (the default), skips validation tests that
+          would identify potential hostname-related problems within
+          the response object's `errors` and `warnings` arrays. See
+          [Property hostname errors](doc:property-hostname-errors)
+          for details on relevant error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateRulesParam_validateRules:
+        name: validateRules
+        in: query
+        description: |
+          Set to `true` by default. When `false`, skips validation
+          tests that would identify potential problems within the
+          response object's `errors` and `warnings` arrays. See the
+          [JSON problems](doc:json-problem-responses)
+          section for details on this error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateModeParam_validateMode:
+        name: validateMode
+        in: query
+        description: |
+          With `validateRules` enabled, setting this to `fast`
+          performs a quick validation check based on the provided
+          JSON. This is faster than the default `full` validation,
+          which performs more extensive checks on the converted XML
+          metadata configuration.
+        schema:
+          default: full
+          type: string
+          enum:
+            - "full"
+            - "fast"
+      trait_dryRunParam_dryRun:
+        name: dryRun
+        in: query
+        description: |
+          With `validateRules` also enabled, allows for a _dry run_ in
+          order to gather any possible errors without saving the rule
+          tree.
+        schema:
+          default: false
+          type: boolean
+      trait_paginated_offset:
+        name: offset
+        in: query
+        description: |
+          For paginated responses, specifies the page of results to
+          include, starting from `0`.
+        schema:
+          minimum: 0
+          type: integer
+      trait_paginated_limit:
+        name: limit
+        in: query
+        description: |
+          For paginated responses, specifies the number of results to
+          include on each page.
+        schema:
+          minimum: 1
+          type: integer
+      trait_usePrefixesHeader_PAPI-Use-Prefixes:
+        name: "PAPI-Use-Prefixes"
+        description: |
+          Sets whether to display three-letter prefixes in various ID values in response data. This may override the client's default `usePrefixes` setting. See [ID Prefixes](doc:id-prefixes).
+        in: header
+        required: true
+        schema:
+          type: string
+    examples: {}
+    requestBodies: {}
+    headers: {}
+    securitySchemes: {}
+    links: {}
+    callbacks: {}

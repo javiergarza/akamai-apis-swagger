@@ -1,0 +1,63 @@
+---
+  openapi: "3.0.0"
+  servers:
+    - url: https://akzz-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX.luna.akamaiapis.net/papi/v1
+  info:
+    title: "Client settings"
+    version: v1
+  paths:
+    /debug/client-info:
+      get:
+        operationId: "GET_debug-client-info"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  lunaRequestThreadLocals:
+                    CONTEXT: ""
+                    LOCALE: ""
+                    REQUEST_HOST: ""
+                    MANAGED_USER: ""
+                    CURRENT_USER: ""
+                    CURRENT_GROUP: ""
+                    CURRENT_ASSET: ""
+                    PORTAL_MODE: ""
+                    PORTAL_CONFIG_FILE_NAME: ""
+                    PORTAL_CONFIG_FILE_ID: ""
+                    LOGGER_OVERRIDE_CONTEXT: ""
+                    PORTAL_UID: ""
+                    _TL_LAST_MANAGED_ACCOUNT: ""
+                    _TL_ACG_SELECT_ALL: ""
+                    PORTAL_UI_LOGIN: ""
+                schema:
+                  $ref: "#/components/schemas/debug-client-info-get-response"
+  components:
+    schemas:
+      debug-client-info-get-response:
+        type: object
+        properties:
+          lunaRequestThreadLocals:
+            type: object
+            additionalProperties:
+              type: string
+          lunaResourceManagerInfo:
+            type: object
+            properties:
+              sharedResourceEnabled:
+                type: boolean
+              specialAccount:
+                type: boolean
+          lunaSessionAttributes:
+            type: object
+            additionalProperties:
+              type: string
+    responses: {}
+    parameters: {}
+    examples: {}
+    requestBodies: {}
+    headers: {}
+    securitySchemes: {}
+    links: {}
+    callbacks: {}

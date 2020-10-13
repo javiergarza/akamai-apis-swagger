@@ -1,0 +1,482 @@
+---
+  openapi: "3.0.0"
+  servers:
+    - url: https://akzz-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX.luna.akamaiapis.net/papi/v1
+  info:
+    title: "Bulk search"
+    version: v1
+  paths:
+    /bulk/rules-search-requests:
+      post:
+        summary: Bulk search a set of properties
+        description: |
+          POST a
+          [BulkSearch](#bulksearch) object to search across all active
+          property versions, specifying a
+          [JSONPath](http://goessner.net/articles/JsonPath/) expression to
+          match their rule trees. This operation launches an asynchronous
+          process to gather search results. To check its progress, run the
+          [List bulk search results](https://papi-akamai.readme.io/reference/bulkrules-search-requestsbulksearchid#get_bulk-rules-search-requests-bulksearchid) operation, whose link
+          is available in the `Location` header or the `bulkSearchLink`
+          member of this operation's response. After gathering completed
+          results, you can create new property versions, bulk patch the
+          rule trees, then activate them. See
+          [Bulk Search and Update](doc:learn-about-bulk)
+          for guidance on this feature.
+          Run [Synchronously bulk search a set of
+          properties](https://papi-akamai.readme.io/reference/bulkrules-search-requests#post_bulk-rules-search-requestssynchronus) as an alternative to
+          get completed search results directly.
+          To perform simpler
+          searches for a property's name or hostnames to which it applies,
+          run the [Search properties](https://papi-akamai.readme.io/reference/searchfind-by-value#post_search-find-by-value) operation instead.
+        operationId: "POST_bulk-rules-search-requests"
+        responses:
+          202:
+            description: ""
+            headers:
+              Location:
+                schema:
+                  type: string
+            content:
+              application/json:
+                example:
+                  bulkSearchLink: "/papi/v0/bulk/rules-search-requests/737"
+                schema:
+                  $ref: "#/components/schemas/bulk-search-post-response"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              example:
+                bulkSearchQuery:
+                  syntax: "JSONPATH"
+                  match: "$..conditions[?(@.name == \"ext\" && \"mp3\" in @.options.value && \"mp4\" nin @.options.value)].options.value[?(@ == \"mp3\")]"
+                  bulkSearchQualifiers:
+                    - "$.options[?(@.secure==\"true\")]"
+                    - "$..features[?(@.name==\"origin\")].options[?(@.hostname==\"old.origin.example.com\")]"
+              schema:
+                $ref: "#/components/schemas/bulk-search-create-request"
+        parameters:
+          - name: "PAPI-Use-Prefixes"
+            description: |
+              Sets whether to display three-letter prefixes in various ID values in response data. This may override the client's default `usePrefixes` setting. See [ID Prefixes](doc:id-prefixes).
+            in: header
+            required: true
+            schema:
+              type: string
+          - $ref: "#/components/parameters/trait_contractParamOptionalBulk_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptionalBulk_groupId"
+    /bulk/rules-search-requests/{bulkSearchId}:
+      get:
+        summary: List bulk search results
+        description: |
+          List all property versions that result from a [bulk search request](https://papi-akamai.readme.io/reference/bulkrules-search-requests#post_bulk-rules-search-requests). Run this operation to poll the asynchronous process's status. The response is a [BulkSearch](#bulksearch) GET object. Once the `searchTargetStatus` is `COMPLETE`, you can feed the `results` into a [bulk versioning](https://papi-akamai.readme.io/reference/bulkproperty-version-creations#post_bulk-property-version-creations) operation. Also use the JSON path `matchLocations` to run a [bulk patch](https://papi-akamai.readme.io/reference/bulkrules-patch-requests#post_bulk-rules-patch-requests) operation over the rule trees. See [Bulk Search and Update](doc:learn-about-bulk) for guidance.
+        operationId: "GET_bulk-rules-search-requests-bulkSearchId"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  bulkSearchId: 5
+                  searchTargetStatus: "COMPLETE"
+                  searchSubmitDate: "2018-01-18T00:00:00Z"
+                  searchUpdateDate: "2018-01-18T00:01:00Z"
+                  bulkSearchQuery:
+                    syntax: "JSONPATH"
+                    match: "$..conditions[?(@.name == \"ext\" && \"mp3\" in @.options.value && \"mp4\" nin @.options.value)].options.value[?(@ == \"mp3\")]"
+                    bulkSearchQualifiers:
+                      - "$.options[?(@.secure==\"true\")]"
+                      - "$..features[?(@.name==\"origin\")].options[?(@.hostname==\"old.origin.example.com\")]"
+                  results:
+                    - propertyId: prp_1
+                      propertyVersion: 1
+                      propertyName: "example1.example.com"
+                      stagingStatus: "ACTIVE"
+                      productionStatus: "INACTIVE"
+                      isLatest: true
+                      isLocked: true
+                      isSecure: true
+                      accountId: "1-abcdef"
+                      lastModifiedTime: "2018-01-18T00:00:00Z"
+                      matchLocations:
+                        - "/rules/children/1/features/0"
+                        - "/rules/children/1/features/3"
+                    - propertyId: prp_15
+                      propertyVersion: 2
+                      propertyName: "example2.example.com"
+                      stagingStatus: "INACTIVE"
+                      productionStatus: "INACTIVE"
+                      isLatest: false
+                      isLocked: false
+                      isSecure: true
+                      accountId: "1-abcdef"
+                      lastModifiedTime: "2018-01-18T00:00:00Z"
+                      matchLocations:
+                        - "/rules/children/1/children/0/features/1"
+                    - propertyId: prp_3
+                      propertyVersion: 10
+                      propertyName: "example3.example.com"
+                      stagingStatus: "INACTIVE"
+                      productionStatus: "ACTIVE"
+                      isLatest: true
+                      isLocked: true
+                      isSecure: true
+                      accountId: "1-abcdef"
+                      lastModifiedTime: "2018-01-18T00:00:00Z"
+                      matchLocations:
+                        - "/rules/children/0/children/1/children/2/features/1"
+                schema:
+                  $ref: "#/components/schemas/bulk-search-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptionalBulk_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptionalBulk_groupId"
+      parameters:
+        - name: bulkSearchId
+          in: path
+          required: true
+          description: |
+            Identifies each bulk search job.
+          schema:
+            type: integer
+  components:
+    schemas:
+      bulk-search-create-request:
+        description: |
+          A bulk search job. The request specifies JSONPath search queries, and the response includes JSON path locations within matching rule trees. Check the `searchTargetStatus` of potentially long-running asynchronous jobs for when they're `COMPLETE`. See [Bulk Search and Update](doc:learn-about-bulk) for guidance on how to use this object.
+        type: object
+        required:
+          - "bulkSearchQuery"
+        properties:
+          bulkSearchQuery:
+            description: |
+              Specifies the set of bulk search criteria.
+            type: object
+            required:
+              - "syntax"
+              - "match"
+            properties:
+              syntax:
+                description: |
+                  Identifies the query syntax for the search. The only currently supported syntax system is `JSONPATH`.
+                type: string
+                enum:
+                  - "JSONPATH"
+              match:
+                description: |
+                  The JSON Path expression to search within available rule trees.
+                type: string
+              bulkSearchQualifiers:
+                type: array
+                items:
+                  description: |
+                    An additional set of JSON Path test expressions that must all succeed for the main `match` on the rule tree to yield results.
+                  type: string
+      bulk-search-get-response:
+        description: |
+          A bulk search job. The request specifies JSONPath search queries, and the response includes JSON path locations within matching rule trees. Check the `searchTargetStatus` of potentially long-running asynchronous jobs for when they're `COMPLETE`. See [Bulk Search and Update](doc:learn-about-bulk) for guidance on how to use this object.
+        type: object
+        required:
+          - "bulkSearchId"
+          - "searchTargetStatus"
+          - "searchSubmitDate"
+          - "bulkSearchQuery"
+          - "results"
+        properties:
+          bulkSearchId:
+            description: |
+              Identifies each bulk search process.
+            type: integer
+          searchTargetStatus:
+            description: |
+              Indicates progress for the entire bulk search process, either `PENDING`, `SUBMITTED`, `IN_PROGRESS`, or finally `COMPLETE`. In some cases, progress may fail due to an `ERROR`.
+            type: string
+            enum:
+              - "PENDING"
+              - "SUBMITTED"
+              - "COMPLETE"
+              - "IN_PROGRESS"
+              - "ERROR"
+          searchSubmitDate:
+            description: |
+              An ISO 8601 timestamp marking when the bulk search request occurred.
+            type: string
+          searchUpdateDate:
+            description: |
+              An ISO 8601 timestamp marking when the `searchTargetStatus` for the bulk search process last changed.
+            type: string
+          bulkSearchQuery:
+            description: |
+              Reflects the bulk search request's `bulkSearchQuery` object.
+            type: object
+            required:
+              - "syntax"
+              - "match"
+            properties:
+              syntax:
+                description: |
+                  Reflects the bulk search request's original `syntax` value. The only currently supported query syntax is `JSONPATH`.
+                type: string
+                enum:
+                  - "JSONPATH"
+              match:
+                description: |
+                  Reflects the bulk search request's original JSON Path`match` query.
+                type: string
+              bulkSearchQualifiers:
+                type: array
+                items:
+                  description: |
+                    Additional JSON Path test expressions specified in the original bulk search request..
+                  type: string
+          results:
+            type: array
+            items:
+              description: |
+                Search results based on the original bulk search request's `bulkSearchQuery`, one for each property version.
+              type: object
+              required:
+                - "propertyId"
+                - "propertyVersion"
+              properties:
+                propertyId:
+                  description: |
+                    Identifies the matching property. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `prp_` prefix.
+                  type: string
+                propertyVersion:
+                  description: |
+                    Identifies the specific property version whose rule tree matches the search query.
+                  type: integer
+                propertyName:
+                  description: |
+                    Identifies the specific property name whose rule tree matches the search query.
+                  type: string
+                stagingStatus:
+                  description: |
+                    The matching property version's activation status on the staging network. Bulk search matches property versions currently active on production and staging networks. Values match those of the [Activation](#activation) object: `ACTIVE`, `INACTIVE`, `NEW`, `PENDING`, `ZONE_1`, `ZONE_2`, `ZONE_3`, `ABORTED`, `FAILED`, `PENDING_DEACTIVATION` or `DEACTIVATED`.
+                  type: string
+                  enum:
+                    - "ACTIVE"
+                    - "INACTIVE"
+                    - "PENDING"
+                    - "ZONE_1"
+                    - "ZONE_2"
+                    - "ZONE_3"
+                    - "ABORTED"
+                    - "FAILED"
+                    - "DEACTIVATED"
+                    - "PENDING_DEACTIVATION"
+                    - "NEW"
+                productionStatus:
+                  description: |
+                    The matching property version's activation status on the production network. Bulk search matches property versions currently active on production and staging networks. Values match those of the [Activation](#activation) object: `ACTIVE`, `INACTIVE`, `NEW`, `PENDING`, `ZONE_1`, `ZONE_2`, `ZONE_3`, `ABORTED`, `FAILED`, `PENDING_DEACTIVATION` or `DEACTIVATED`.
+                  type: string
+                  enum:
+                    - "ACTIVE"
+                    - "INACTIVE"
+                    - "PENDING"
+                    - "ZONE_1"
+                    - "ZONE_2"
+                    - "ZONE_3"
+                    - "ABORTED"
+                    - "FAILED"
+                    - "DEACTIVATED"
+                    - "PENDING_DEACTIVATION"
+                    - "NEW"
+                isLatest:
+                  description: |
+                    Indicates whether this property version is the most recently modified, regardless of whether it's active. The most recently modified version appears along with active versions in bulk search results.
+                  type: boolean
+                isLocked:
+                  description: |
+                    Indicates whether the property version is editable. The value is `false` if it's active or has ever been activated.
+                  type: boolean
+                isSecure:
+                  description: |
+                    Identifies the specific field whose rule tree matches the search result.
+                  type: boolean
+                matchLocations:
+                  type: array
+                  items:
+                    description: |
+                      JSON path expressions for each matching node in the property version's rule tree.
+                    type: string
+                lastModifiedTime:
+                  description: |
+                    An ISO 8601 timestamp indicating when the matching property version was last modified.
+                  type: string
+      bulk-search-post-response:
+        description: |
+          Provides a hypermedia link to a newly created resource. The response's single member name indicates the type of resource.
+        type: object
+        required:
+          - "bulkSearchLink"
+        properties:
+          bulkSearchLink:
+            description: |
+              Links the newly created bulk search process.
+            type: string
+    responses: {}
+    parameters:
+      trait_contractParamRequired_contractId:
+        name: contractId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the contract.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptional_contractId:
+        name: contractId
+        in: query
+        description: |
+          Unique identifier for the contract.
+          The parameter is optional if the property has been
+          provisioned under only one contract.
+          Otherwise you need to specify it along with the `groupId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptionalBulk_contractId:
+        name: contractId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified contract. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_groupParamRequired_groupId:
+        name: groupId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the group.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptional_groupId:
+        name: groupId
+        in: query
+        description: |
+          Unique identifier for the group.
+          The parameter is optional if the property has been
+          provisioned under only one group.
+          Otherwise you need to specify it along with the `contractId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptionalBulk_groupId:
+        name: groupId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified group. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_optionsParam_options:
+        name: options
+        in: query
+        description: |
+          Comma-separated list of options to enable; `mapDetails`
+          enables extra mapping-related information.
+        schema:
+          type: string
+      trait_validateHostnamesParam_validateHostnames:
+        name: validateHostnames
+        in: query
+        description: |
+          When `false` (the default), skips validation tests that
+          would identify potential hostname-related problems within
+          the response object's `errors` and `warnings` arrays. See
+          [Property hostname errors](doc:property-hostname-errors)
+          for details on relevant error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateRulesParam_validateRules:
+        name: validateRules
+        in: query
+        description: |
+          Set to `true` by default. When `false`, skips validation
+          tests that would identify potential problems within the
+          response object's `errors` and `warnings` arrays. See the
+          [JSON problems](doc:json-problem-responses)
+          section for details on this error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateModeParam_validateMode:
+        name: validateMode
+        in: query
+        description: |
+          With `validateRules` enabled, setting this to `fast`
+          performs a quick validation check based on the provided
+          JSON. This is faster than the default `full` validation,
+          which performs more extensive checks on the converted XML
+          metadata configuration.
+        schema:
+          default: full
+          type: string
+          enum:
+            - "full"
+            - "fast"
+      trait_dryRunParam_dryRun:
+        name: dryRun
+        in: query
+        description: |
+          With `validateRules` also enabled, allows for a _dry run_ in
+          order to gather any possible errors without saving the rule
+          tree.
+        schema:
+          default: false
+          type: boolean
+      trait_paginated_offset:
+        name: offset
+        in: query
+        description: |
+          For paginated responses, specifies the page of results to
+          include, starting from `0`.
+        schema:
+          minimum: 0
+          type: integer
+      trait_paginated_limit:
+        name: limit
+        in: query
+        description: |
+          For paginated responses, specifies the number of results to
+          include on each page.
+        schema:
+          minimum: 1
+          type: integer
+      trait_usePrefixesHeader_PAPI-Use-Prefixes:
+        name: "PAPI-Use-Prefixes"
+        description: |
+          Sets whether to display three-letter prefixes in various ID values in response data. This may override the client's default `usePrefixes` setting. See [ID Prefixes](doc:id-prefixes).
+        in: header
+        required: true
+        schema:
+          type: string
+    examples: {}
+    requestBodies: {}
+    headers: {}
+    securitySchemes: {}
+    links: {}
+    callbacks: {}

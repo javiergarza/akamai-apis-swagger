@@ -1,0 +1,193 @@
+openapi: 3.0.0
+info:
+  title: Invalidations
+  version: '1'
+servers: []
+paths:
+  /invalidate/cpcode/{network}:
+    parameters:
+    - $ref: parameters/network-path.yaml
+    post:
+      operationId: POST_invalidate-cpcode-network
+      description: 'Invalidate by CP code: Invalidates content on the selected CP
+
+        code for the selected `network`.  You should consider
+
+        invalidating content by default. This keeps each object in cache
+
+        until the version on your origin server is newer.  Deletion
+
+        retrieves the object regardless, which can dramatically increase
+
+        the load on your origin server and would prevent Akamai from
+
+        serving the old content if your origin is unreachable.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            example:
+              $ref: examples/cpcode_request.json
+            schema:
+              $ref: schemas/CpCodeRequest.yaml
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              example:
+                $ref: examples/201.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        403:
+          content:
+            application/json:
+              example:
+                $ref: examples/403.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        429:
+          content:
+            application/json:
+              example:
+                $ref: examples/cpcode_429.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        500:
+          content:
+            application/json:
+              example:
+                $ref: examples/500.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+  /invalidate/tag/{network}:
+    parameters:
+    - $ref: parameters/network-path.yaml
+    post:
+      operationId: POST_invalidate-tag-network
+      description: 'Invalidate by cache tag: Invalidates content on the selected set
+
+        of cache tags for the selected `network`.  You should consider
+
+        invalidating content by default. This keeps each object in cache
+
+        until the version on your origin server is newer.  Deletion
+
+        retrieves the object regardless, which can dramatically increase
+
+        the load on your origin server and would prevent Akamai from
+
+        serving the old content if your origin is unreachable.
+
+        '
+      requestBody:
+        content:
+          application/json:
+            example:
+              $ref: examples/tag_request.json
+            schema:
+              $ref: schemas/TagRequest.yaml
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              example:
+                $ref: examples/201.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        403:
+          content:
+            application/json:
+              example:
+                $ref: examples/403.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        429:
+          content:
+            application/json:
+              example:
+                $ref: examples/tag_429.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        500:
+          content:
+            application/json:
+              example:
+                $ref: examples/500.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+  /invalidate/url/{network}:
+    parameters:
+    - $ref: parameters/network-path.yaml
+    post:
+      operationId: POST_invalidate-url-network
+      description: "Invalidate by URL or ARL: Invalidates content on the selected URL or ARL \nfor the selected `network`. You should consider invalidating\ncontent by default. This keeps each object in cache until the\nversion on your origin server is newer.  Deletion retrieves the\nobject regardless, which can dramatically increase the load on\nyour origin server and would prevent Akamai from serving the\nold content if your origin is unreachable. URLs and ARLs can be \nsubmitted in the same request. Note that it takes longer to purge ARLs when \nusing the [Control Center](https://control.akamai.com/apps/fast-purge/#/ccu-main) \ninterface. Use this API to purge them within five seconds.\n"
+      requestBody:
+        content:
+          application/json:
+            example:
+              $ref: examples/url_request.json
+            schema:
+              $ref: schemas/UrlRequest.yaml
+        required: true
+      responses:
+        201:
+          content:
+            application/json:
+              example:
+                $ref: examples/201.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        400:
+          content:
+            application/json:
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        403:
+          content:
+            application/json:
+              example:
+                $ref: examples/403.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        429:
+          content:
+            application/json:
+              example:
+                $ref: examples/url_429.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''
+        500:
+          content:
+            application/json:
+              example:
+                $ref: examples/500.json
+              schema:
+                $ref: schemas/Response.yaml
+          description: ''

@@ -1,0 +1,8 @@
+---
+title: "Create or clone a property"
+slug: "post_properties"
+excerpt: "This operation either creates a new property from scratch, or\nbases one on another property's rule tree and optionally its set\nof assigned hostnames.\n\nWhen cloning with `copyHostnames` enabled, you can apply the\nsame set of hostnames as the original property. Regardless,\nthe new property clones the rule tree from the original,\nalong with its assigned `ruleFormat`. Setting\n`cloneFromVersionEtag` allows you to perform an etags check\nto ensure the original property hasn't changed. See\n[Concurrency control](doc:concurrency-control) for guidance.\n\nNote that unlike a new property version, a property that you\nclone along with all of its hostnames can be activated\nindependently of the property on which it was based. If you\nactivate a property that specifies hostnames that are\nalready active on another property, the other property\nautomatically gets a new version activated without the\ncommon set of hostnames, or deactivated if all its hostnames\nare part of the new property.\n\nPAPI's ability to create and clone new properties means that\nyou can design a system of rule templates targeted to\nspecific domains, rather than maintain a single set of rules\nwith conditional logic for your full range of\ndomains. Maintaining properties manually within the Control\nCenter interface limited you to that more consolidated\napproach, but PAPI allows you to deploy rules more\nefficiently. In either case, PAPI makes it much easier for\nyou to support a large, flexible set of domains."
+hidden: false
+createdAt: "2020-06-05T12:23:43.021Z"
+updatedAt: "2020-06-05T21:53:06.393Z"
+---

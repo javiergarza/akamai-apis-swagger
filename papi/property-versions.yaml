@@ -1,0 +1,636 @@
+---
+  openapi: "3.0.0"
+  servers:
+    - url: https://akzz-XXXXXXXXXXXXXXXX-XXXXXXXXXXXXXXXX.luna.akamaiapis.net/papi/v1
+  info:
+    title: "Property versions"
+    version: v1
+  paths:
+    /properties/{propertyId}/versions:
+      get:
+        summary: List property versions
+        description: |
+          Lists the property's versions, with results limited to the 500 most recent versions. Optionally paginate the results. Each property version indicates activation status on different networks, and an `etag` digest useful when [cloning the property](https://papi-akamai.readme.io/reference/properties#post_properties).
+        operationId: "GET_properties-propertyId-versions"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  propertyId: prp_173136
+                  propertyName: "981.catalog.amenai.net"
+                  accountId: act_1-1TJZFB
+                  contractId: ctr_1-1TJZH5
+                  groupId: grp_15225
+                  assetId: aid_101
+                  versions:
+                    items:
+                      - propertyVersion: 2
+                        updatedByUser: amenai
+                        updatedDate: "2014-05-10T19:06:13Z"
+                        productionStatus: "INACTIVE"
+                        stagingStatus: "ACTIVE"
+                        etag: "5891b5b522d5df08"
+                        productId: prd_Alta
+                        note: "updated caching"
+                      - propertyVersion: 1
+                        updatedByUser: afaden
+                        updatedDate: "2013-05-04T21:12:57Z"
+                        productionStatus: "ACTIVE"
+                        stagingStatus: "INACTIVE"
+                        etag: "71573b922a87abc3"
+                        productId: prd_Alta
+                        note: "initial version"
+                schema:
+                  $ref: "#/components/schemas/property-version-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptional_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptional_groupId"
+          - $ref: "#/components/parameters/trait_paginated_offset"
+          - $ref: "#/components/parameters/trait_paginated_limit"
+      post:
+        summary: Create a new property version
+        description: |
+          Create a new property version
+          based on any previous version. All data from the
+          `createFromVersion` populates the new version, including its
+          rules and hostnames. Specify `createFromVersionEtag` if you
+          want to ensure you're creating from a version that hasn't
+          changed since you fetched it.
+        operationId: "POST_properties-propertyId-versions"
+        responses:
+          201:
+            description: ""
+            headers:
+              Location:
+                schema:
+                  type: string
+            content:
+              application/json:
+                example:
+                  versionLink: "/papi/v0/properties/prp_173136/versions/2?contractId=ctr_1-1TJZH5&groupId=grp_15225"
+                schema:
+                  $ref: "#/components/schemas/property-version-create-response"
+        requestBody:
+          required: true
+          content:
+            application/json:
+              example:
+                createFromVersion: 1
+                createFromVersionEtag: "2641910c585cf67b"
+              schema:
+                $ref: "#/components/schemas/property-version-create-request"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptional_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptional_groupId"
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          description: |
+            Unique identifier for the property.
+            See [ID prefixes](doc:id-prefixes)
+            for details on omitting the value's `prp_` prefix.
+          schema:
+            type: string
+    /properties/{propertyId}/versions/{propertyVersion}:
+      get:
+        summary: Get a version
+        description: |
+          This polls the state of a specific property version, for example to check its activation status. When specifying `Accept: text/xml`, this operation provides the Akamai _metadata_ configuration data that's distributed to edge servers when the property version is activated. This XML data encapsulates the property version's component rules and hostnames, and is available on a read-only basis. Contact your Akamai representative if you need help interpreting it.
+        operationId: "GET_properties-propertyId-versions-propertyVersion"
+        responses:
+          200:
+            description: ""
+            headers:
+              Etag:
+                schema:
+                  type: string
+            content:
+              text/xml:
+                schema:
+                  example: "\n <?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<configs xmlns:cache=\"uri:akamai.com/metadata/cache/5.0\" xmlns:edgeservices=\"uri:akamai.com/metadata/edgeservices/5.0\" xmlns:config=\"uri:akamai.com/metadata/config/5.0\" xmlns:network=\"uri:akamai.com/metadata/network/5.0\" xmlns:auth=\"uri:akamai.com/metadata/auth/5.0\" xmlns:match=\"uri:akamai.com/metadata/match/5.0\" xmlns:forward=\"uri:akamai.com/metadata/forward/5.0\" xmlns:comment=\"uri:akamai.com/metadata/comment/5.0\" xmlns:akamai=\"uri:akamai.com/metadata/akamai/5.0\" xmlns:security=\"uri:akamai.com/metadata/security/5.0\" xmlns:reporting=\"uri:akamai.com/metadata/reporting/5.0\" xmlns:edgecomputing=\"uri:akamai.com/metadata/edgecomputing/5.0\" xmlns:assign=\"uri:akamai.com/metadata/assign/5.0\">\n    <comment:note value=\"Property Manager generated metadata. XML engine version: 14.2.1\"/>\n    <comment:note value=\"Catalog version: 14.4.4\"/>\n    <comment:note value=\"Product name: Site_Accel\"/>\n    <comment:note value=\"Property name: example.com, version: 33\"/>\n    <comment:note value=\"Asset ID: 99999\"/>\n    <comment:note value=\"AcgID: \"/>\n    <comment:note value=\"AccountId: 1-7KLGH\"/>\n    <comment:note value=\"Hostnames: www.example.com\"/>\n</configs>\n"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptional_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptional_groupId"
+      parameters:
+        - name: propertyVersion
+          in: path
+          required: true
+          description: |
+            Property's incremental version number.
+          schema:
+            type: integer
+        - name: propertyId
+          in: path
+          required: true
+          description: |
+            Unique identifier for the property.
+            See [ID prefixes](doc:id-prefixes)
+            for details on omitting the value's `prp_` prefix.
+          schema:
+            type: string
+    /properties/{propertyId}/versions/{propertyVersion}/available-behaviors:
+      get:
+        summary: List available behaviors
+        description: |
+          Lists the set of [behaviors](http://learn.akamai.com/en-us/api/core_features/property_manager/vlatest.html#behaviors) you may apply within a property version's rules. The available set is determined by the product under which you created the property, and any additional modules enabled under your account.
+
+          Note that this list of available behaviors is more accurate than that specified in the [rule format schema](https://papi-akamai.readme.io/reference/schemasproductsproductidruleformat#get_schemas-products-productid-ruleformat), which includes behaviors you may potentially add to your contract for a given product, but that aren't currently active. However, it only lists behaviors _currently_ available on your contract, so you should only use it to list available behaviors for the current property version. If you had a behavior enabled at one time, but then dropped it from your contract, a list of available behaviors for an older property version might be inaccurate.
+        operationId: "GET_properties-propertyId-versions-propertyVersion-available-behaviors"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  contractId: ctr_1-1TJZH5
+                  groupId: grp_15225
+                  productId: prd_Alta
+                  ruleFormat: v2015-08-08
+                  availableBehaviors:
+                    items:
+                      - name: cpCode
+                        schemaLink: "/papi/v0/schemas/products/prd_Alta/latest#/definitions/catalog/behaviors/cpCode"
+                      - name: origin
+                        schemaLink: "/papi/v0/schemas/products/prd_Alta/latest#/definitions/catalog/behaviors/origin"
+                schema:
+                  $ref: "#/components/schemas/available-behavior-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptional_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptional_groupId"
+      parameters:
+        - name: propertyVersion
+          in: path
+          required: true
+          description: |
+            Property's incremental version number.
+          schema:
+            type: integer
+        - name: propertyId
+          in: path
+          required: true
+          description: |
+            Unique identifier for the property.
+            See [ID prefixes](doc:id-prefixes)
+            for details on omitting the value's `prp_` prefix.
+          schema:
+            type: string
+    /properties/{propertyId}/versions/{propertyVersion}/available-criteria:
+      get:
+        summary: List available criteria
+        description: |
+          Lists the set of [criteria](http://learn.akamai.com/en-us/api/core_features/property_manager/vlatest.html#criteria) you may apply within a property version's rules. The available set is determined by the product under which you created the property, and any additional modules enabled under your account.
+
+          Note that this list of available criteria is more accurate than that specified in the [rule format schema](https://papi-akamai.readme.io/reference/schemasproductsproductidruleformat#get_schemas-products-productid-ruleformat), which includes criteria you may potentially add to your contract for a given product, but that aren't currently active. However, it only lists criteria _currently_ available on your contract, so you should only use it to list available criteria for the current property version. If you had a behavior enabled at one time, but then dropped it from your contract, a list of available criteria for an older property version might be inaccurate.
+        operationId: "GET_properties-propertyId-versions-propertyVersion-available-criteria"
+        responses:
+          200:
+            description: ""
+            content:
+              application/json:
+                example:
+                  contractId: ctr_1-1TJZH5
+                  groupId: grp_15225
+                  productId: prd_Alta
+                  ruleFormat: v2015-08-08
+                  availableCriteria:
+                    items:
+                      - name: fileExtension
+                        schemaLink: "/papi/v0/schemas/products/prd_Alta/latest#/definitions/catalog/criteria/fileExtension"
+                      - name: hostname
+                        schemaLink: "/papi/v0/schemas/products/prd_Alta/latest#/definitions/catalog/criteria/hostname"
+                schema:
+                  $ref: "#/components/schemas/available-criteria-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - $ref: "#/components/parameters/trait_contractParamOptional_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptional_groupId"
+      parameters:
+        - name: propertyVersion
+          in: path
+          required: true
+          description: |
+            Property's incremental version number.
+          schema:
+            type: integer
+        - name: propertyId
+          in: path
+          required: true
+          description: |
+            Unique identifier for the property.
+            See [ID prefixes](doc:id-prefixes)
+            for details on omitting the value's `prp_` prefix.
+          schema:
+            type: string
+    /properties/{propertyId}/versions/latest:
+      get:
+        summary: Get the latest version
+        description: |
+          This operation provides either the latest property version overall, or the latest one active on the production or staging networks. By default, the response yields the property version with the highest number. Specifying an `activatedOn` of `STAGING` or `PRODUCTION` yields the version that's currently active on either network.
+        operationId: "GET_properties-propertyId-versions-latest"
+        responses:
+          302:
+            description: ""
+            headers:
+              Location:
+                schema:
+                  type: string
+            content:
+              application/json:
+                example:
+                  versionLink: "/papi/v0/properties/prp_173136/versions/2?contractId=ctr_1-1TJZH5&groupId=grp_15225"
+                schema:
+                  $ref: "#/components/schemas/property-version-get-response"
+        parameters:
+          - $ref: "#/components/parameters/trait_usePrefixesHeader_PAPI-Use-Prefixes"
+          - name: activatedOn
+            in: query
+            description: |
+              If present, returns the latest version activated on the
+              given network, either `STAGING` or `PRODUCTION`.
+            schema:
+              type: string
+              enum:
+                - "STAGING"
+                - "PRODUCTION"
+          - $ref: "#/components/parameters/trait_contractParamOptional_contractId"
+          - $ref: "#/components/parameters/trait_groupParamOptional_groupId"
+      parameters:
+        - name: propertyId
+          in: path
+          required: true
+          description: |
+            Unique identifier for the property.
+            See [ID prefixes](doc:id-prefixes)
+            for details on omitting the value's `prp_` prefix.
+          schema:
+            type: string
+  components:
+    schemas:
+      property-version-create-request:
+        description: |
+          When [incrementing a new version](https://papi-akamai.readme.io/reference/propertiespropertyidversions#post_properties-propertyid-versions), this POST object's members aren't reflected in subsequent [Version](#version) responses.
+        type: object
+        required:
+          - "createFromVersion"
+        properties:
+          createFromVersion:
+            description: |
+              The property version on which to base the new version.
+            type: integer
+          createFromVersionEtag:
+            description: |
+              The data digest of the version on which to base the new version. See [Concurrency control](doc:concurrency-control) for guidance.
+            type: string
+      property-version-get-response:
+        description: |
+          A common outer wrapping object structure that provides additional contextual details for a set of requested data. The data itself is available under various inner members' `items` array, even individual items. See [ID prefixes](doc:id-prefixes) for more information.
+        type: object
+        properties:
+          accountId:
+            description: |
+              Identifies the prevailing account under which the data was requested. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `act_` prefix.
+            type: string
+          assetId:
+            description: |
+              An alternative [property](#property) identifier, for internal use.
+            type: string
+          contractId:
+            default: SIERRA
+            description: |
+              Uniquely identifies the prevailing [contract](#contract) under which the data was requested. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `ctr_` prefix.
+            type: string
+          groupId:
+            description: |
+              Uniquely identifies the prevailing [group](#group) under which the data was requested. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `grp_` prefix.
+            type: string
+          propertyId:
+            description: |
+              Uniquely identifies this version's [property](#property), or its component rules or hostnames. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `prp_` prefix.
+            type: string
+          propertyName:
+            description: |
+              A descriptive name for the property for this version.
+            type: string
+          versions:
+            description: |
+              The set of requested property versions, available within an `items` array.
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  description: |
+                    Specifies the version of a property. Relevant response objects appear within the outer [Envelope](#envelope) object's `versions.items` array. Additional contextual members appear in POST response listings when [searching property versions](https://papi-akamai.readme.io/reference/searchfind-by-value#post_search-find-by-value). (For the POST request to create a new version, see the [CreateVersion](#createversion) object type.)
+                  type: object
+                  required:
+                    - "etag"
+                    - "note"
+                    - "productId"
+                    - "productionStatus"
+                    - "propertyVersion"
+                    - "stagingStatus"
+                    - "updatedByUser"
+                    - "updatedDate"
+                  properties:
+                    etag:
+                      description: |
+                        A digest with which to check the data's integrity. See [Concurrency control](doc:concurrency-control) for guidance.
+                      type: string
+                    note:
+                      description: |
+                        A descriptive log comment.
+                      type: string
+                    productId:
+                      description: |
+                        The product assigned to the property when versioned. See [ID prefixes](doc:id-prefixes) for details on how to omit the ID's `prd_` prefix.
+                      type: string
+                    productionStatus:
+                      description: |
+                        Whether the version has been activated to the production network. If `ACTIVE`, the version is read-only. Otherwise it may be `INACTIVE` or `PENDING`.
+                      type: string
+                      enum:
+                        - "ACTIVE"
+                        - "INACTIVE"
+                        - "PENDING"
+                    propertyVersion:
+                      minimum: 1
+                      description: |
+                        A positive integer identifying the incremental version.
+                      type: integer
+                    ruleFormat:
+                      description: |
+                        Identifies the rule format currently assigned to the property version's rule tree.
+                      type: string
+                    stagingStatus:
+                      description: |
+                        Whether the version has been activated to the test network. If `ACTIVE`, the version is read-only. Otherwise it may be `INACTIVE` or `PENDING`.
+                      type: string
+                      enum:
+                        - "ACTIVE"
+                        - "INACTIVE"
+                        - "PENDING"
+                    updatedByUser:
+                      description: |
+                        The username who last updated the version.
+                      type: string
+                    updatedDate:
+                      description: |
+                        The date stamp of the version's latest update.
+                      type: string
+      property-version-create-response:
+        description: |
+          Provides a hypermedia link to a newly created resource. The response's single member name indicates the type of resource.
+        type: object
+        required:
+          - "versionLink"
+        properties:
+          versionLink:
+            description: |
+              Links the newly created property version.
+            type: string
+      available-behavior-get-response:
+        description: |
+          A common outer wrapping object structure that provides additional contextual details for a set of requested data. The data itself is available under various inner members' `items` array, even individual items. See [ID prefixes](doc:id-prefixes) for more information.
+        type: object
+        properties:
+          contractId:
+            default: SIERRA
+            type: string
+          ruleFormat:
+            type: string
+          groupId:
+            type: string
+          productId:
+            type: string
+          availableBehaviors:
+            description: |
+              The set of available behaviors, available within an `items` array.
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  description: |
+                    When listing available [behaviors](https://papi-akamai.readme.io/reference-link/get_properties-propertyid-versions-propertyversion-available-behaviors) or [criteria](https://papi-akamai.readme.io/reference/propertiespropertyidversionspropertyversionavailable-criteria#get_properties-propertyid-versions-propertyversion-available-criteria) under your current contract, provides details for each.
+                  type: object
+                  required:
+                    - "name"
+                    - "schemaLink"
+                  properties:
+                    name:
+                      description: |
+                        The name of the currently available behavior or criteria.
+                      type: string
+                    schemaLink:
+                      description: |
+                        A link to the rule format that describes the behavior or criteria. Use the file link to [Get a rule format's schema](https://papi-akamai.readme.io/reference/schemasproductsproductidruleformat#get_schemas-products-productid-ruleformat), then use the appended JSON Pointer expression to navigate to the schema that catalogs its options.
+                      type: string
+      available-criteria-get-response:
+        description: |
+          A common outer wrapping object structure that provides additional contextual details for a set of requested data. The data itself is available under various inner members' `items` array, even individual items. See [ID prefixes](doc:id-prefixes) for more information.
+        type: object
+        properties:
+          contractId:
+            default: SIERRA
+            type: string
+          ruleFormat:
+            type: string
+          groupId:
+            type: string
+          productId:
+            description: |
+              When listing available [behaviors](https://papi-akamai.readme.io/reference-link/get_properties-propertyid-versions-propertyversion-available-behaviors) or [criteria](https://papi-akamai.readme.io/reference/propertiespropertyidversionspropertyversionavailable-criteria#get_properties-propertyid-versions-propertyversion-available-criteria) under your current contract, identifies the product under which the property was created.
+            type: string
+          availableCriteria:
+            description: |
+              The set of available criteria, available within an `items` array.
+            type: object
+            properties:
+              items:
+                type: array
+                items:
+                  description: |
+                    When listing available [behaviors](https://papi-akamai.readme.io/reference-link/get_properties-propertyid-versions-propertyversion-available-behaviors) or [criteria](https://papi-akamai.readme.io/reference/propertiespropertyidversionspropertyversionavailable-criteria#get_properties-propertyid-versions-propertyversion-available-criteria) under your current contract, provides details for each.
+                  type: object
+                  required:
+                    - "name"
+                    - "schemaLink"
+                  properties:
+                    name:
+                      description: |
+                        The name of the currently available behavior or criteria.
+                      type: string
+                    schemaLink:
+                      description: |
+                        A link to the rule format that describes the behavior or criteria. Use the file link to [Get a rule format's schema](https://papi-akamai.readme.io/reference/schemasproductsproductidruleformat#get_schemas-products-productid-ruleformat), then use the appended JSON Pointer expression to navigate to the schema that catalogs its options.
+                      type: string
+    responses: {}
+    parameters:
+      trait_contractParamRequired_contractId:
+        name: contractId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the contract.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptional_contractId:
+        name: contractId
+        in: query
+        description: |
+          Unique identifier for the contract.
+          The parameter is optional if the property has been
+          provisioned under only one contract.
+          Otherwise you need to specify it along with the `groupId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `ctr_` prefix.
+        schema:
+          type: string
+      trait_contractParamOptionalBulk_contractId:
+        name: contractId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified contract. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_groupParamRequired_groupId:
+        name: groupId
+        in: query
+        required: true
+        description: |
+          Unique identifier for the group.
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptional_groupId:
+        name: groupId
+        in: query
+        description: |
+          Unique identifier for the group.
+          The parameter is optional if the property has been
+          provisioned under only one group.
+          Otherwise you need to specify it along with the `contractId`.
+          (In other operations that don't specify a `propertyId` URL
+          parameter, this parameter is always required.)
+          See [ID prefixes](doc:id-prefixes)
+          for details on omitting the value's `grp_` prefix.
+        schema:
+          type: string
+      trait_groupParamOptionalBulk_groupId:
+        name: groupId
+        in: query
+        description: |
+          Optionally filters bulk searches to properties provisioned
+          under the specified group. For bulk operations, you can
+          specify `contractId` and `groupId` independently from each
+          other.
+        schema:
+          type: string
+      trait_optionsParam_options:
+        name: options
+        in: query
+        description: |
+          Comma-separated list of options to enable; `mapDetails`
+          enables extra mapping-related information.
+        schema:
+          type: string
+      trait_validateHostnamesParam_validateHostnames:
+        name: validateHostnames
+        in: query
+        description: |
+          When `false` (the default), skips validation tests that
+          would identify potential hostname-related problems within
+          the response object's `errors` and `warnings` arrays. See
+          [Property hostname errors](doc:property-hostname-errors)
+          for details on relevant error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateRulesParam_validateRules:
+        name: validateRules
+        in: query
+        description: |
+          Set to `true` by default. When `false`, skips validation
+          tests that would identify potential problems within the
+          response object's `errors` and `warnings` arrays. See the
+          [JSON problems](doc:json-problem-responses)
+          section for details on this error feedback. See
+          [Fast validation, activation, and fallback](doc:fast-validation)
+          for details on the delays this might avoid.
+        schema:
+          default: true
+          type: boolean
+      trait_validateModeParam_validateMode:
+        name: validateMode
+        in: query
+        description: |
+          With `validateRules` enabled, setting this to `fast`
+          performs a quick validation check based on the provided
+          JSON. This is faster than the default `full` validation,
+          which performs more extensive checks on the converted XML
+          metadata configuration.
+        schema:
+          default: full
+          type: string
+          enum:
+            - "full"
+            - "fast"
+      trait_dryRunParam_dryRun:
+        name: dryRun
+        in: query
+        description: |
+          With `validateRules` also enabled, allows for a _dry run_ in
+          order to gather any possible errors without saving the rule
+          tree.
+        schema:
+          default: false
+          type: boolean
+      trait_paginated_offset:
+        name: offset
+        in: query
+        description: |
+          For paginated responses, specifies the page of results to
+          include, starting from `0`.
+        schema:
+          minimum: 0
+          type: integer
+      trait_paginated_limit:
+        name: limit
+        in: query
+        description: |
+          For paginated responses, specifies the number of results to
+          include on each page.
+        schema:
+          minimum: 1
+          type: integer
+      trait_usePrefixesHeader_PAPI-Use-Prefixes:
+        name: "PAPI-Use-Prefixes"
+        description: |
+          Sets whether to display three-letter prefixes in various ID values in response data. This may override the client's default `usePrefixes` setting. See [ID Prefixes](doc:id-prefixes).
+        in: header
+        required: true
+        schema:
+          type: string
+    examples: {}
+    requestBodies: {}
+    headers: {}
+    securitySchemes: {}
+    links: {}
+    callbacks: {}

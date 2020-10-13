@@ -1,0 +1,19 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "id": "TagRequest.json",
+  "title": "Purge Request Body",
+  "description": "Specifies a list of cache tags to invalidate or delete.",
+  "type": "object",
+  "required": [
+    "objects"
+  ],
+  "properties": {
+    "objects": {
+      "type": "array",
+      "items": {
+        "description": "An array of cache tag strings you want to purge.",
+        "type": "string"
+      }
+    }
+  }
+}
